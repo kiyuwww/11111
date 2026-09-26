@@ -1,243 +1,1893 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>СТРОГИЙ КОНТРОЛЬ ТЕСТИРОВАНИЯ</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1a1a1a;
-            color: #fff;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            user-select: none;
-            -webkit-user-select: none;
-            overflow: hidden;
-        }
-        .container {
-            background: #2a2a2a;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            max-width: 600px;
-            width: 100%;
-            text-align: center;
-            border: 2px solid #444;
-            transition: all 0.3s ease;
-        }
-        .hidden { display: none !important; }
-        button {
-            background-color: #d32f2f;
-            color: white;
-            border: none;
-            padding: 15px 32px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 6px;
-            margin-top: 20px;
-            box-shadow: 0 4px 10px rgba(211, 47, 47, 0.4);
-        }
-        button:hover { background-color: #b71c1c; }
-        .option-btn {
-            display: block;
-            width: 100%;
-            background: #3a3a3a;
-            color: #fff;
-            padding: 12px;
-            margin: 12px 0;
-            border: 1px solid #555;
-            border-radius: 6px;
-            cursor: pointer;
-            text-align: left;
-            font-size: 16px;
-        }
-        .option-btn:hover { background: #4a4a4a; border-color: #888; }
-        
-        /* Экран тотальной блокировки */
-        #lock-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: #ff1744;
-            color: white;
-            z-index: 99999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        #lock-screen h1 { font-size: 48px; margin-bottom: 10px; }
-    </style>
+<meta charset="UTF-8">
+<title>Discord ID Bypass Tool — by PromptPirate</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600&family=Space+Grotesk:wght@400;600&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#0a0a0f;color:#e0e0e8;font-family:'JetBrains Mono',monospace;overflow:hidden;height:100vh;touch-action:none}
+  canvas{display:block}
+  .hud{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:10}
+  .hp{position:absolute;background:rgba(10,10,20,0.85);backdrop-filter:blur(12px);border:1px solid rgba(100,220,255,0.15);border-radius:8px;padding:14px 18px;pointer-events:auto;user-select:none;max-width:90vw}
+  .hp>*:not(.ht){cursor:default}
+  .hp.collapsed>*:not(.ht){display:none!important}
+  .hp.collapsed{min-width:auto!important}
+  .ht{cursor:move}
+  .ht{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:2.5px;color:rgba(100,220,255,0.7);margin-bottom:10px;display:flex;align-items:center;gap:8px;justify-content:space-between}
+  .ht::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:#64dcff;box-shadow:0 0 8px #64dcff}
+  .ht-toggle{cursor:pointer;opacity:0.5;font-size:14px;line-height:1;padding:0 4px}
+  .ht-toggle:hover{opacity:1}
+  .main-title{position:absolute;top:20px;left:20px;font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:600;letter-spacing:1px;color:#e8e8f0;text-shadow:0 0 20px rgba(100,220,255,0.3);pointer-events:none;text-align:left;z-index:5}
+  .main-title span{color:#64dcff}
+  .controller-status{top:60px;right:20px}
+  .sensitivity-panel{top:20px;left:400px}
+  .model-panel{top:180px;right:20px;max-width:380px;max-height:calc(100vh - 200px);overflow-y:auto}
+  .model-panel::-webkit-scrollbar{width:5px}.model-panel::-webkit-scrollbar-track{background:transparent}.model-panel::-webkit-scrollbar-thumb{background:rgba(100,220,255,0.2);border-radius:3px}
+  .controls-panel{bottom:180px;left:20px;max-width:320px}
+  .values-panel{bottom:20px;left:20px;min-width:220px;max-width:320px}
+  .kid-panel{top:60px;left:20px;max-width:360px;max-height:20vh;overflow-y:auto}
+  .kid-panel::-webkit-scrollbar{width:5px}.kid-panel::-webkit-scrollbar-track{background:transparent}.kid-panel::-webkit-scrollbar-thumb{background:rgba(100,220,255,0.2);border-radius:3px}
+  .lighting-panel{top:250px;left:20px;max-width:320px;max-height:22vh;overflow-y:auto}
+  .lighting-panel::-webkit-scrollbar{width:5px}.lighting-panel::-webkit-scrollbar-track{background:transparent}.lighting-panel::-webkit-scrollbar-thumb{background:rgba(100,220,255,0.2);border-radius:3px}
+  @media(max-width:768px){
+    .hp{font-size:10px;padding:10px 12px;max-width:calc(100vw - 20px)}
+    .hp.collapsed>*:not(.ht){display:none!important}
+    .hp.collapsed{min-width:auto!important;padding:8px 10px!important}
+    .main-title{font-size:14px;top:10px;left:10px}
+    .controller-status{top:35px;right:10px;max-width:calc(48vw - 15px)}
+    .sensitivity-panel{top:35px;left:10px;max-width:calc(48vw - 15px)}
+    .kid-panel{top:100px;left:10px;max-width:calc(100vw - 20px);max-height:25vh;overflow-y:auto}
+    .model-panel{top:calc(25vh + 110px);left:10px;max-width:calc(100vw - 20px);max-height:25vh;overflow-y:auto}
+    .controls-panel{top:calc(50vh + 120px);left:10px;max-width:calc(48vw - 15px)}
+    .values-panel{top:calc(50vh + 120px);right:10px;max-width:calc(48vw - 15px)}
+    .ht{font-size:10px;letter-spacing:1.5px}
+    .hide-ui-btn{top:10px;right:10px;font-size:9px;padding:4px 10px;transform:none}
+  }
+  .sd{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+  .sd.on{background:#4ade80;box-shadow:0 0 8px #4ade80}.sd.off{background:#f87171;box-shadow:0 0 8px #f87171}
+  .cr{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:11px;color:#a0a0b0;gap:12px}
+  .ck{background:rgba(100,220,255,0.1);border:1px solid rgba(100,220,255,0.25);border-radius:4px;padding:2px 8px;font-size:10px;color:#64dcff;font-family:'JetBrains Mono',monospace;white-space:nowrap}
+  .vr{display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:12px}
+  .vl{color:#808090}.vn{color:#64dcff;font-weight:600;font-variant-numeric:tabular-nums}
+  .vbt{width:80px;height:4px;background:rgba(100,220,255,0.1);border-radius:2px;overflow:hidden;margin-left:10px}
+  .vbf{height:100%;background:linear-gradient(90deg,#64dcff,#a78bfa);border-radius:2px;transition:width 0.05s linear}
+  .sr{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:11px;color:#a0a0b0}
+  .sb{background:rgba(100,220,255,0.1);border:1px solid rgba(100,220,255,0.3);color:#64dcff;width:22px;height:22px;border-radius:4px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
+  .sb:hover{background:rgba(100,220,255,0.25)}
+  .sv{color:#64dcff;font-weight:600;min-width:30px;text-align:center}
+  .cb{flex:1;background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.3);color:#a78bfa;padding:5px 8px;border-radius:4px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.3px;white-space:nowrap}
+  .cb:hover{background:rgba(167,139,250,0.2);border-color:rgba(167,139,250,0.5)}
+  .lbtn{background:rgba(100,220,255,0.1);border:1px solid rgba(100,220,255,0.3);color:#64dcff;padding:8px 16px;border-radius:6px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.5px;width:100%}
+  .lbtn:hover{background:rgba(100,220,255,0.2);border-color:rgba(100,220,255,0.5)}
+  #model-file,#model-multi{display:none}
+  .li{font-size:10px;color:#707080;margin-top:8px;line-height:1.5;white-space:pre-line}
+  .err{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);border-radius:4px;padding:8px;margin-top:8px;font-size:10px;color:#f87171;display:none;word-break:break-all}
+  .ok-box{background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.25);border-radius:4px;padding:8px;margin-top:8px;font-size:10px;color:#4ade80;display:none;white-space:pre-line;line-height:1.5}
+  .bsel{background:rgba(10,10,20,0.9);border:1px solid rgba(100,220,255,0.2);color:#e0e0e8;padding:4px 8px;border-radius:4px;font-size:10px;font-family:'JetBrains Mono',monospace;width:100%;margin-top:2px}
+  .bsel option{background:#1a1a2e}
+  .brow{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:11px}
+  .blbl{min-width:45px;font-weight:600}
+  .blbl.hd{color:#4ade80}.blbl.nk{color:#facc15}.blbl.jw{color:#f97316}
+  .jaw-row{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:10px;color:#a0a0b0}
+  .axb{background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.25);color:#f97316;padding:2px 8px;border-radius:3px;cursor:pointer;font-size:10px;font-family:'JetBrains Mono',monospace}
+  .axb:hover{background:rgba(249,115,22,0.25)}.axb.active{background:rgba(249,115,22,0.3);border-color:#f97316;font-weight:600}
+  .sub{font-size:10px;color:#5a5a6a;margin-top:3px}
+  .orbit-hint{position:absolute;bottom:55px;left:50%;transform:translateX(-50%);font-size:10px;color:#353545;pointer-events:none}
+  .format-badges{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+  .fbadge{font-size:9px;padding:2px 7px;border-radius:3px;font-weight:600;letter-spacing:0.5px}
+  .fbadge.vrm{background:rgba(251,146,60,0.15);color:#fb923c;border:1px solid rgba(251,146,60,0.3)}
+  .fbadge.fbx{background:rgba(167,139,250,0.15);color:#a78bfa;border:1px solid rgba(167,139,250,0.3)}
+  .fbadge.glb{background:rgba(100,220,255,0.15);color:#64dcff;border:1px solid rgba(100,220,255,0.3)}
+  .fbadge.zip{background:rgba(250,204,21,0.15);color:#facc15;border:1px solid rgba(250,204,21,0.3)}
+  .drop-zone{border:2px dashed rgba(100,220,255,0.3);border-radius:6px;padding:12px;margin-top:8px;text-align:center;font-size:10px;color:#5a5a6a;transition:all 0.2s;cursor:pointer}
+  .drop-zone.over{border-color:#64dcff;background:rgba(100,220,255,0.05);color:#64dcff}
+  .morph-tester{margin-top:8px;padding:8px;background:rgba(249,115,22,0.05);border:1px solid rgba(249,115,22,0.15);border-radius:6px}
+  .morph-tester-row{display:flex;align-items:center;gap:6px;padding:2px 0;font-size:10px;color:#b0b0c0}
+  .morph-tester-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;padding:2px 4px;border-radius:3px}
+  .morph-tester-name:hover{background:rgba(249,115,22,0.1)}
+  .morph-tester-name.active{color:#f97316;background:rgba(249,115,22,0.15)}
+  .morph-tester-val{min-width:30px;text-align:right;color:#f97316;font-weight:600}
+  .morph-slider{width:60px;accent-color:#f97316}
+  .morph-map{font-size:8px;padding:2px 6px;border-radius:3px;background:rgba(74,222,128,0.08);color:#4ade80;border:1px solid rgba(74,222,128,0.2);cursor:pointer;white-space:nowrap;font-family:'JetBrains Mono',monospace}
+  .morph-map:hover{background:rgba(74,222,128,0.2);border-color:#4ade80}
+  .morph-map.mapped{background:rgba(74,222,128,0.2);border-color:#4ade80;font-weight:600}
+  .morph-auto{font-size:9px;padding:2px 6px;border-radius:3px;background:rgba(74,222,128,0.15);color:#4ade80;border:1px solid rgba(74,222,128,0.25)}
+  .hp{cursor:move;user-select:none}
+  .hp.dragging{opacity:0.8;z-index:999}
+  .hide-ui-btn{position:absolute;top:20px;right:20px;background:rgba(10,10,20,0.85);backdrop-filter:blur(12px);border:1px solid rgba(100,220,255,0.15);border-radius:6px;padding:6px 14px;color:#64dcff;font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;pointer-events:auto;z-index:20}
+  .hide-ui-btn:hover{background:rgba(100,220,255,0.15)}
+  .hud.hidden .hp{display:none!important}
+  .kid-input{background:rgba(10,10,20,0.9);border:1px solid rgba(100,220,255,0.2);color:#e0e0e8;padding:6px 10px;border-radius:4px;font-size:11px;font-family:'JetBrains Mono',monospace;width:100%;margin-top:4px}
+  .kid-btn{background:rgba(100,220,255,0.1);border:1px solid rgba(100,220,255,0.3);color:#64dcff;padding:8px 16px;border-radius:6px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;width:100%;margin-top:8px}
+  .kid-btn:hover{background:rgba(100,220,255,0.2)}
+  .kid-output{background:rgba(10,10,20,0.95);border:1px solid rgba(100,220,255,0.2);border-radius:4px;padding:8px;margin-top:8px;font-size:9px;color:#a0a0b0;max-height:200px;overflow-y:auto;font-family:'JetBrains Mono',monospace;white-space:pre-wrap;word-break:break-all;display:none}
+  .kid-output::-webkit-scrollbar{width:4px}.kid-output::-webkit-scrollbar-track{background:transparent}.kid-output::-webkit-scrollbar-thumb{background:rgba(100,220,255,0.2);border-radius:2px}
+  @media(max-width:768px){
+    .orbit-hint{display:none}
+    .vbt{width:50px}
+    .cr{font-size:9px;gap:6px}
+    .ck{font-size:8px;padding:1px 5px}
+  }
+  .hidden{display:none}
+  
+  /* ═══════════════════════════════════════════════════════
+     QUICK START TUTORIAL
+     ═══════════════════════════════════════════════════════ */
+  .tutorial-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(10,10,15,0.95);backdrop-filter:blur(8px);z-index:10000;display:none;align-items:center;justify-content:center}
+  .tutorial-overlay.active{display:flex}
+  .tutorial-card{background:rgba(10,10,20,0.95);border:2px solid rgba(100,220,255,0.3);border-radius:12px;padding:32px;max-width:500px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
+  .tutorial-title{font-family:'Space Grotesk',sans-serif;font-size:24px;color:#64dcff;margin-bottom:16px;letter-spacing:1px}
+  .tutorial-text{font-size:14px;color:#c0c0cc;line-height:1.8;margin-bottom:24px}
+  .tutorial-step{font-size:12px;color:#808090;margin-bottom:20px}
+  .tutorial-highlight{color:#64dcff;font-weight:600;background:rgba(100,220,255,0.1);padding:2px 8px;border-radius:4px}
+  .tutorial-btn{background:linear-gradient(135deg,#64dcff,#a78bfa);border:none;color:#0a0a0f;padding:12px 32px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;cursor:pointer;letter-spacing:0.5px;transition:transform 0.2s}
+  .tutorial-btn:hover{transform:scale(1.05)}
+  .tutorial-skip{margin-top:16px;font-size:11px;color:#606070;cursor:pointer;text-decoration:underline}
+  .tutorial-skip:hover{color:#64dcff}
+  .tutorial-progress{display:flex;gap:8px;justify-content:center;margin-top:20px}
+  .tutorial-dot{width:8px;height:8px;border-radius:50%;background:rgba(100,220,255,0.2);transition:all 0.3s}
+  .tutorial-dot.active{background:#64dcff;width:24px;border-radius:4px}
+
+  /* ═══════════════════════════════════════════════════════
+     MOBILE VIRTUAL JOYSTICK
+     ═══════════════════════════════════════════════════════ */
+  .mobile-controls{position:fixed;bottom:20px;left:0;right:0;display:none;justify-content:space-between;padding:0 20px;pointer-events:none;z-index:100}
+  @media(max-width:768px){.mobile-controls{display:flex}}
+  .joystick-container{width:120px;height:120px;position:relative;pointer-events:auto}
+  .joystick-base{width:100%;height:100%;border-radius:50%;background:rgba(10,10,20,0.6);backdrop-filter:blur(8px);border:2px solid rgba(100,220,255,0.3);position:relative}
+  .joystick-stick{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#64dcff,#a78bfa);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);box-shadow:0 4px 12px rgba(100,220,255,0.4);transition:all 0.1s}
+  .joystick-label{position:absolute;top:-25px;left:50%;transform:translateX(-50%);font-size:10px;color:#64dcff;font-family:'JetBrains Mono',monospace;white-space:nowrap}
+  .mobile-btn-group{display:flex;flex-direction:column;gap:12px;pointer-events:auto}
+  .mobile-btn{width:60px;height:60px;border-radius:50%;background:rgba(10,10,20,0.6);backdrop-filter:blur(8px);border:2px solid rgba(100,220,255,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;color:#64dcff;font-family:'JetBrains Mono',monospace;font-weight:600;touch-action:none;user-select:none}
+  .mobile-btn.active{background:rgba(100,220,255,0.3);border-color:#64dcff;box-shadow:0 0 20px rgba(100,220,255,0.5)}
+
+  /* ═══════════════════════════════════════════════════════
+     PHONEME SELECTOR
+     ═══════════════════════════════════════════════════════ */
+  .phoneme-panel{position:absolute;bottom:20px;right:20px;background:rgba(10,10,20,0.85);backdrop-filter:blur(12px);border:1px solid rgba(100,220,255,0.15);border-radius:8px;padding:14px;pointer-events:auto;display:none}
+  @media(max-width:768px){.phoneme-panel{bottom:160px;right:10px}}
+  .phoneme-panel.visible{display:block}
+  .phoneme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .phoneme-btn{width:50px;height:50px;border-radius:8px;background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.3);color:#a78bfa;font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center}
+  .phoneme-btn:hover{background:rgba(167,139,250,0.25);border-color:#a78bfa;transform:scale(1.1)}
+  .phoneme-btn.active{background:rgba(167,139,250,0.3);border-color:#a78bfa;box-shadow:0 0 16px rgba(167,139,250,0.5)}
+  .phoneme-toggle{position:absolute;top:20px;right:380px;background:rgba(10,10,20,0.85);backdrop-filter:blur(12px);border:1px solid rgba(100,220,255,0.15);border-radius:6px;padding:6px 14px;color:#a78bfa;font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;pointer-events:auto;z-index:20}
+  .phoneme-toggle:hover{background:rgba(167,139,250,0.15)}
+  @media(max-width:768px){.phoneme-toggle{top:10px;right:10px}}
+
+  /* ═══════════════════════════════════════════════════════
+     LIGHTING CONTROLS
+     ═══════════════════════════════════════════════════════ */
+  .light-row{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:11px}
+  .light-label{min-width:60px;font-weight:600}
+  .light-slider{flex:1;accent-color:#64dcff;height:4px}
+  .light-value{min-width:35px;text-align:right;color:#64dcff;font-weight:600;font-size:10px}
+  .light-color{width:20px;height:20px;border-radius:4px;border:1px solid rgba(100,220,255,0.3);cursor:pointer}
+  .light-toggle{background:rgba(100,220,255,0.1);border:1px solid rgba(100,220,255,0.3);color:#64dcff;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:9px;font-family:'JetBrains Mono',monospace}
+  .light-toggle:hover{background:rgba(100,220,255,0.2)}
+  .light-toggle.active{background:rgba(74,222,128,0.2);border-color:#4ade80;color:#4ade80}
+
+  /* ═══════════════════════════════════════════════════════
+     SKELETON LOADING
+     ═══════════════════════════════════════════════════════ */
+  .skeleton-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a0f;z-index:9999;display:flex;align-items:center;justify-content:center;opacity:1;transition:opacity 0.4s ease}
+  .skeleton-overlay.fade-out{opacity:0;pointer-events:none}
+  .skeleton-container{width:90%;max-width:1400px;height:90vh;display:grid;grid-template-columns:1fr 2fr 1fr;grid-template-rows:auto 1fr auto;gap:20px;padding:20px}
+  
+  /* Skeleton shimmer animation */
+  @keyframes shimmer{0%{background-position:-1000px 0}100%{background-position:1000px 0}}
+  .skeleton-box{background:linear-gradient(90deg,rgba(100,220,255,0.03) 0%,rgba(100,220,255,0.08) 50%,rgba(100,220,255,0.03) 100%);background-size:1000px 100%;animation:shimmer 2s infinite linear;border:1px solid rgba(100,220,255,0.1);border-radius:8px;position:relative;overflow:hidden}
+  .skeleton-box::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(90deg,transparent 0%,rgba(100,220,255,0.15) 50%,transparent 100%);animation:shimmer 2s infinite linear}
+  
+  /* Header skeleton */
+  .skeleton-header{grid-column:1/4;height:60px;display:flex;align-items:center;padding:0 20px;gap:12px}
+  .skeleton-logo{width:24px;height:24px;border-radius:4px;background:rgba(100,220,255,0.15)}
+  .skeleton-title{flex:1;height:20px;max-width:300px;border-radius:4px}
+  
+  /* Left panel (controls) */
+  .skeleton-left{grid-column:1;grid-row:2;display:flex;flex-direction:column;gap:20px}
+  .skeleton-panel{padding:18px;display:flex;flex-direction:column;gap:12px}
+  .skeleton-panel-header{height:14px;width:60%;border-radius:3px;background:rgba(100,220,255,0.2);margin-bottom:8px}
+  .skeleton-row{height:28px;border-radius:4px;background:rgba(100,220,255,0.05)}
+  .skeleton-row.tall{height:40px}
+  .skeleton-row.short{height:20px;width:70%}
+  
+  /* Center canvas */
+  .skeleton-canvas{grid-column:2;grid-row:1/4;background:radial-gradient(circle at center,rgba(100,220,255,0.05) 0%,transparent 70%);border:1px solid rgba(100,220,255,0.08);border-radius:12px;position:relative}
+  .skeleton-canvas::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:120px;height:120px;border:3px solid rgba(100,220,255,0.2);border-top-color:#64dcff;border-radius:50%;animation:spin 1.5s linear infinite}
+  @keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+  .skeleton-canvas-text{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);font-size:11px;color:rgba(100,220,255,0.5);font-family:'JetBrains Mono',monospace;letter-spacing:1px}
+  
+  /* Right panel (model) */
+  .skeleton-right{grid-column:3;grid-row:2;display:flex;flex-direction:column;gap:20px}
+  .skeleton-button{height:36px;border-radius:6px;background:rgba(100,220,255,0.08);border:1px solid rgba(100,220,255,0.15)}
+  .skeleton-dropzone{height:80px;border:2px dashed rgba(100,220,255,0.15);border-radius:6px;background:rgba(100,220,255,0.02)}
+  
+  /* Footer skeleton */
+  .skeleton-footer{grid-column:1/4;height:100px;display:flex;gap:20px}
+  .skeleton-footer-panel{flex:1;padding:18px}
+  
+  /* Mobile responsive */
+  @media(max-width:768px){
+    .skeleton-container{grid-template-columns:1fr;grid-template-rows:auto auto 1fr auto;gap:12px;padding:12px}
+    .skeleton-header{grid-column:1;height:50px}
+    .skeleton-left{grid-column:1;grid-row:2}
+    .skeleton-canvas{grid-column:1;grid-row:3;min-height:300px}
+    .skeleton-right{grid-column:1;grid-row:4}
+    .skeleton-footer{grid-column:1;grid-row:5;flex-direction:column;height:auto}
+  }
+</style>
 </head>
 <body>
 
-<!-- Экран блокировки при нарушении -->
-<div id="lock-screen" class="hidden">
-    <h1>ТЕСТ АННУЛИРОВАН</h1>
-    <p style="font-size: 20px;">Обнаружена попытка обхода системы защиты или выход из полноэкранного режима.</p>
-    <p>Доступ к тестированию заблокирован. Результат: 0 баллов.</p>
+<!-- ═══════════════════════════════════════════════════════
+     QUICK START TUTORIAL
+     ═══════════════════════════════════════════════════════ -->
+<div class="tutorial-overlay" id="tutorial-overlay">
+  <div class="tutorial-card">
+    <div class="tutorial-title" id="tut-title">Welcome to Discord ID Bypass</div>
+    <div class="tutorial-text" id="tut-text">Let's get you started in 3 simple steps</div>
+    <div class="tutorial-step" id="tut-step"></div>
+    <button class="tutorial-btn" id="tut-btn">Start</button>
+    <div class="tutorial-skip" id="tut-skip">Skip tutorial</div>
+    <div class="tutorial-progress" id="tut-progress"></div>
+  </div>
 </div>
 
-<!-- Начальный экран -->
-<div class="container" id="start-screen">
-    <h2>Вход в защищенную зону тестирования</h2>
-    <p style="color: #ff5252; font-weight: bold;">ВНИМАНИЕ! Система полностью блокирует интерфейс.</p>
-    <p>Любое нажатие F11, Esc, переключение окон, открытие меню или попытка сделать скриншот приведет к моментальной дисквалификации без права пересдачи.</p>
-    <button onclick="initStrictTest()">Я готов, начать тест</button>
+<!-- ═══════════════════════════════════════════════════════
+     SKELETON LOADING OVERLAY
+     ═══════════════════════════════════════════════════════ -->
+<div class="skeleton-overlay" id="skeleton-overlay">
+  <div class="skeleton-container">
+    <!-- Header -->
+    <div class="skeleton-header skeleton-box">
+      <div class="skeleton-logo"></div>
+      <div class="skeleton-title"></div>
+    </div>
+    
+    <!-- Left panels -->
+    <div class="skeleton-left">
+      <div class="skeleton-box skeleton-panel">
+        <div class="skeleton-panel-header"></div>
+        <div class="skeleton-row short"></div>
+        <div class="skeleton-row short"></div>
+      </div>
+      <div class="skeleton-box skeleton-panel">
+        <div class="skeleton-panel-header"></div>
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+      </div>
+    </div>
+    
+    <!-- Center canvas -->
+    <div class="skeleton-canvas skeleton-box">
+      <div class="skeleton-canvas-text">INITIALIZING THREE.JS</div>
+    </div>
+    
+    <!-- Right panel -->
+    <div class="skeleton-right">
+      <div class="skeleton-box skeleton-panel">
+        <div class="skeleton-panel-header"></div>
+        <div class="skeleton-button"></div>
+        <div class="skeleton-dropzone"></div>
+        <div class="skeleton-row short"></div>
+        <div class="skeleton-row short"></div>
+      </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="skeleton-footer">
+      <div class="skeleton-box skeleton-footer-panel">
+        <div class="skeleton-panel-header"></div>
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+      </div>
+      <div class="skeleton-box skeleton-footer-panel">
+        <div class="skeleton-panel-header"></div>
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<!-- Экран вопросов -->
-<div class="container hidden" id="quiz-screen">
-    <h3 id="question-title">Вопрос 1</h3>
-    <div id="options-block"></div>
+<div id="canvas-container" style="width:100vw;height:100vh;position:relative;">
+  <button class="hide-ui-btn" id="hide-ui-btn">Hide UI [H]</button>
+  <div class="hud" id="hud">
+    <button class="phoneme-toggle" id="phoneme-toggle">Phonemes [P]</button>
+    <div class="main-title"><span>☠</span> Discord ID Bypass Tool <span style="font-size:11px;opacity:0.5;margin-left:6px">by PromptPirate</span></div>
+
+    <div class="hp controller-status">
+      <div class="ht">Input<span class="ht-toggle">−</span></div>
+      <div style="font-size:12px;color:#c0c0cc"><span class="sd off" id="gp-dot"></span><span id="gp-status">No Gamepad</span></div>
+      <div class="sub" id="gp-hint">Press any button on controller</div>
+      <div class="sub">Keyboard: Always Active</div>
+    </div>
+
+    <div class="hp sensitivity-panel">
+      <div class="ht">Sensitivity<span class="ht-toggle">−</span></div>
+      <div class="sr"><span style="min-width:45px">Head</span><button class="sb" id="hs-d">−</button><span class="sv" id="hs-v">1.0</span><button class="sb" id="hs-u">+</button></div>
+      <div class="sr"><span style="min-width:45px">Mouth</span><button class="sb" id="ms-d">−</button><span class="sv" id="ms-v">1.0</span><button class="sb" id="ms-u">+</button></div>
+      <div class="sr"><span style="min-width:45px;color:#f97316">Range</span><button class="sb" id="mr-d" style="border-color:rgba(249,115,22,0.3);color:#f97316">−</button><span class="sv" id="mr-v" style="color:#f97316">100%</span><button class="sb" id="mr-u" style="border-color:rgba(249,115,22,0.3);color:#f97316">+</button></div>
+      <div style="display:flex;gap:6px;margin-top:10px">
+        <button class="cb" id="cam-head">Focus Head</button>
+        <button class="cb" id="cam-body">Full Body</button>
+        <button class="cb" id="cam-reset">Reset Cam</button>
+      </div>
+    </div>
+
+    <div class="hp lighting-panel">
+      <div class="ht">Lighting<span class="ht-toggle">−</span></div>
+      <div class="light-row">
+        <span class="light-label">Key Light</span>
+        <button class="light-toggle active" id="key-toggle">ON</button>
+        <input type="color" class="light-color" id="key-color" value="#dce8ff" />
+      </div>
+      <div class="light-row">
+        <span class="light-label" style="min-width:80px">Intensity</span>
+        <input type="range" class="light-slider" id="key-intensity" min="0" max="3" step="0.1" value="1.4" />
+        <span class="light-value" id="key-val">1.4</span>
+      </div>
+      <div class="light-row">
+        <span class="light-label" style="min-width:20px">X</span>
+        <input type="range" class="light-slider" id="key-x" min="-10" max="10" step="0.5" value="3" />
+        <span class="light-value" id="key-x-val">3</span>
+      </div>
+      <div class="light-row">
+        <span class="light-label" style="min-width:20px">Y</span>
+        <input type="range" class="light-slider" id="key-y" min="-10" max="10" step="0.5" value="4" />
+        <span class="light-value" id="key-y-val">4</span>
+      </div>
+      <div class="light-row">
+        <span class="light-label" style="min-width:20px">Z</span>
+        <input type="range" class="light-slider" id="key-z" min="-10" max="10" step="0.5" value="5" />
+        <span class="light-value" id="key-z-val">5</span>
+      </div>
+      <div class="light-row">
+        <span class="light-label">Fill Light</span>
+        <button class="light-toggle active" id="fill-toggle">ON</button>
+        <input type="color" class="light-color" id="fill-color" value="#64dcff" />
+      </div>
+      <div class="light-row">
+        <span class="light-label" style="min-width:80px">Intensity</span>
+        <input type="range" class="light-slider" id="fill-intensity" min="0" max="2" step="0.1" value="0.4" />
+        <span class="light-value" id="fill-val">0.4</span>
+      </div>
+      <div class="light-row">
+        <span class="light-label" style="min-width:20px">X</span>
+        <input type="range" class="light-slider" id="fill-x" min="-10" max="10" step="0.5" value="-3" />
+        <span class="light-value" id="fill-x-val">-3</span>
+      </div>
+      <div class="light-row">
+        <span class="light-label" style="min-width:20px">Y</span>
+        <input type="range" class="light-slider" id="fill-y" min="-10" max="10" step="0.5" value="2" />
+        <span class="light-value" id="fill-y-val">2</span>
+      </div>
+      <div class="light-row">
+        <span class="light-label" style="min-width:20px">Z</span>
+        <input type="range" class="light-slider" id="fill-z" min="-10" max="10" step="0.5" value="2" />
+        <span class="light-value" id="fill-z-val">2</span>
+      </div>
+      <div class="light-row">
+        <span class="light-label">Rim Light</span>
+        <button class="light-toggle active" id="rim-toggle">ON</button>
+        <input type="color" class="light-color" id="rim-color" value="#a78bfa" />
+      </div>
+      <div class="light-row">
+        <span class="light-label" style="min-width:80px">Intensity</span>
+        <input type="range" class="light-slider" id="rim-intensity" min="0" max="2" step="0.1" value="0.5" />
+        <span class="light-value" id="rim-val">0.5</span>
+      </div>
+      <div class="light-row">
+        <span class="light-label" style="min-width:20px">X</span>
+        <input type="range" class="light-slider" id="rim-x" min="-10" max="10" step="0.5" value="0" />
+        <span class="light-value" id="rim-x-val">0</span>
+      </div>
+      <div class="light-row">
+        <span class="light-label" style="min-width:20px">Y</span>
+        <input type="range" class="light-slider" id="rim-y" min="-10" max="10" step="0.5" value="2" />
+        <span class="light-value" id="rim-y-val">2</span>
+      </div>
+      <div class="light-row">
+        <span class="light-label" style="min-width:20px">Z</span>
+        <input type="range" class="light-slider" id="rim-z" min="-10" max="10" step="0.5" value="-4" />
+        <span class="light-value" id="rim-z-val">-4</span>
+      </div>
+      <div class="light-row">
+        <span class="light-label">Ambient</span>
+        <button class="light-toggle active" id="ambient-toggle">ON</button>
+        <input type="color" class="light-color" id="ambient-color" value="#506080" />
+      </div>
+      <div class="light-row">
+        <span class="light-label" style="min-width:80px">Intensity</span>
+        <input type="range" class="light-slider" id="ambient-intensity" min="0" max="2" step="0.1" value="0.8" />
+        <span class="light-value" id="ambient-val">0.8</span>
+      </div>
+    </div>
+
+    <div class="hp model-panel" id="model-panel">
+      <div class="ht">Model<span class="ht-toggle">−</span></div>
+      <button class="lbtn" id="load-btn">Load Model File</button>
+      <input type="file" id="model-file" accept=".vrm,.fbx,.glb,.gltf,.zip" />
+      <input type="file" id="model-multi" accept=".fbx,.png,.jpg,.jpeg,.tga,.bmp" multiple style="display:none" />
+      <div class="format-badges">
+        <span class="fbadge vrm">VRM</span>
+        <span class="fbadge fbx">FBX</span>
+        <span class="fbadge glb">GLB/GLTF</span>
+        <span class="fbadge zip">ZIP</span>
+      </div>
+      <div class="drop-zone" id="drop-zone">
+        Drop folder or ZIP here<br>for FBX + textures
+      </div>
+      <button class="lbtn" id="load-multi-btn" style="margin-top:4px;font-size:9px;padding:5px 10px;opacity:0.7">
+        Or select FBX + texture files together
+      </button>
+      <div class="li" id="model-info">VRM = instant setup. FBX with textures = use ZIP or drop folder. GLB = self-contained.</div>
+      <div class="err" id="err-box"></div>
+      <div class="ok-box" id="ok-box"></div>
+
+      <!-- Bone assignment dropdowns -->
+      <div id="bone-section" style="display:none;margin-top:12px">
+        <div class="ht">Bone Assignment<span class="ht-toggle">−</span></div>
+        <div class="brow"><span class="blbl hd">Head</span><select class="bsel" id="sel-head"><option value="">(none)</option></select></div>
+        <div class="brow"><span class="blbl nk">Neck</span><select class="bsel" id="sel-neck"><option value="">(none)</option></select></div>
+        <div class="brow"><span class="blbl jw">Jaw</span><select class="bsel" id="sel-jaw"><option value="">(none)</option></select></div>
+
+        <div id="jaw-section" style="display:none;margin-top:8px">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#f97316;opacity:0.7;margin-bottom:6px">Jaw Open Axis</div>
+          <div class="jaw-row">
+            <button class="axb active" data-a="x" id="ax-x">X</button>
+            <button class="axb" data-a="y" id="ax-y">Y</button>
+            <button class="axb" data-a="z" id="ax-z">Z</button>
+            <span style="margin-left:6px">Dir:</span>
+            <button class="axb active" data-d="1" id="dir-p">+</button>
+            <button class="axb" data-d="-1" id="dir-n">−</button>
+          </div>
+        </div>
+
+        <div id="morph-section" style="display:none;margin-top:10px">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#f97316;opacity:0.7;margin-bottom:6px">Mouth (Morph Targets)</div>
+          <div style="font-size:9px;color:#6a6a7a;margin-bottom:6px">Mouth morph auto-assigned to RT/Space. Use tester below to preview each shape.</div>
+          <select class="bsel" id="morph-sel"><option value="">None (use jaw bone)</option></select>
+          <div class="morph-tester" id="morph-tester" style="display:none">
+            <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#f97316;opacity:0.7;margin-bottom:4px">Morph Tester — click name to assign to mouth</div>
+            <div id="morph-tester-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hp controls-panel">
+      <div class="ht">Controls<span class="ht-toggle">−</span></div>
+      <div class="cr"><span>Head Yaw</span><span class="ck">A D / L-Stick X</span></div>
+      <div class="cr"><span>Head Pitch</span><span class="ck">W S / L-Stick Y</span></div>
+      <div class="cr"><span>Head Roll</span><span class="ck">Q E / R-Stick X</span></div>
+      <div class="cr"><span>Mouth</span><span class="ck">Space / RT</span></div>
+	  <div class="cr"><span>Mouth (Slow)</span><span class="ck">No. 1-5</span></div>
+      <div class="cr"><span>Reset</span><span class="ck">R / Y Button</span></div>
+    </div>
+
+    <div class="hp values-panel">
+      <div class="ht">State<span class="ht-toggle">−</span></div>
+      <div class="vr"><span class="vl">Yaw</span><span class="vn" id="v-yaw">0.0°</span></div>
+      <div class="vr"><span class="vl">Pitch</span><span class="vn" id="v-pitch">0.0°</span></div>
+      <div class="vr"><span class="vl">Roll</span><span class="vn" id="v-roll">0.0°</span></div>
+      <div class="vr"><span class="vl">Mouth</span><div style="display:flex;align-items:center"><span class="vn" id="v-mouth" style="margin-right:8px">0%</span><div class="vbt"><div class="vbf" id="mouth-bar" style="width:0%"></div></div></div></div>
+    </div>
+
+    <div class="hp kid-panel" id="kid-panel">
+      <div class="ht">k-ID Bypass<span class="ht-toggle">−</span></div>
+      <div style="font-size:10px;color:#f87171;margin-bottom:8px;padding:6px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);border-radius:4px;line-height:1.4">
+        ⚠️ CURRENTLY NOT FUNCTIONAL<br>
+        Both API and Standalone modes are not working. Discord has patched their verification system.
+      </div>
+      <div style="font-size:10px;color:#707080;margin-bottom:6px;opacity:0.5">Verify your Discord account as adult using QR code</div>
+      
+      <div style="font-size:9px;color:#5a5a6a;margin-bottom:8px;line-height:1.4;opacity:0.5">
+        1. Start Discord age verification<br>
+        2. Choose "Face Scan" option<br>
+        3. Scan/upload the QR code below
+      </div>
+      
+      <div style="display:flex;gap:6px;margin-bottom:8px;opacity:0.4;pointer-events:none">
+        <button class="cb" id="mode-api" style="flex:1;font-size:9px;padding:4px;background:rgba(100,220,255,0.2);border-color:#64dcff" disabled>API Mode</button>
+        <button class="cb" id="mode-standalone" style="flex:1;font-size:9px;padding:4px" disabled>Standalone</button>
+      </div>
+      <div style="font-size:8px;color:#f87171;margin-bottom:6px" id="mode-desc">⚠️ Both modes are currently patched and non-functional</div>
+      
+      <label style="font-size:10px;color:#a0a0b0;opacity:0.4">QR Code URL or Image:</label>
+      <input type="text" class="kid-input" id="kid-qr-url" placeholder="https://... or drop QR image" style="margin-bottom:4px;opacity:0.4" disabled />
+      
+      <label class="kid-btn" style="cursor:not-allowed;text-align:center;margin-top:4px;opacity:0.4;font-size:10px;padding:6px;pointer-events:none">
+        📷 Upload QR Image
+        <input type="file" id="kid-qr-file" accept="image/*" style="display:none" disabled />
+      </label>
+      
+      <button class="kid-btn" id="kid-verify" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:#f87171;opacity:0.4;cursor:not-allowed" disabled>
+        ✗ Not Functional
+      </button>
+      
+      <div style="font-size:9px;color:#f87171;margin-top:8px;line-height:1.4">
+        Status: <span id="kid-status" style="color:#f87171">Not Functional (Discord Patched)</span>
+      </div>
+      
+      <div class="kid-output" id="kid-output"></div>
+    </div>
+
+    <div class="orbit-hint">Right-click drag to orbit · Scroll to zoom</div>
+    
+    <!-- Phoneme Panel -->
+    <div class="phoneme-panel" id="phoneme-panel">
+      <div class="phoneme-grid">
+        <button class="phoneme-btn" data-phoneme="a">A</button>
+        <button class="phoneme-btn" data-phoneme="e">E</button>
+        <button class="phoneme-btn" data-phoneme="i">I</button>
+        <button class="phoneme-btn" data-phoneme="o">O</button>
+        <button class="phoneme-btn" data-phoneme="u">U</button>
+        <button class="phoneme-btn" data-phoneme="neutral">—</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Mobile Controls -->
+  <div class="mobile-controls">
+    <div class="joystick-container" id="joystick-head">
+      <div class="joystick-label">HEAD</div>
+      <div class="joystick-base">
+        <div class="joystick-stick" id="joystick-head-stick"></div>
+      </div>
+    </div>
+    <div class="mobile-btn-group">
+      <div class="mobile-btn" id="mobile-mouth">MOUTH</div>
+      <div class="mobile-btn" id="mobile-roll-l">ROLL L</div>
+      <div class="mobile-btn" id="mobile-roll-r">ROLL R</div>
+    </div>
+  </div>
 </div>
 
-<!-- Экран успешного финала -->
-<div class="container hidden" id="result-screen">
-    <h2 style="color: #4caf50;">Тест успешно завершен</h2>
-    <p id="score-details"></p>
-    <p style="color: #888; font-size: 14px;">Вы прошли проверку без критических нарушений фокуса.</p>
-</div>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<script src="kid-bypass-standalone.js"></script>
+<script src="kid-bypass.js"></script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-    let isTestRunning = false;
-    let currentQ = 0;
-    let score = 0;
+// ═══════════════════════════════════════════════════════
+// CONFIG & STATE
+// ═══════════════════════════════════════════════════════
+var CFG={hS:1,mS:1,mRange:1.0,yawMax:80,pitchMax:50,rollMax:35,dz:0.12,sm:0.12,msm:0.15,jawAxis:'x',jawDir:1,jawAngle:0.4};
+var S={tY:0,tP:0,tR:0,tM:0,cY:0,cP:0,cR:0,cM:0,keys:{},phoneme:'neutral',gyroEnabled:false};
+var A={head:null,neck:null,jaw:null,headI:null,neckI:null,jawI:null,morphMesh:null,morphIdx:-1,phonemeMorphs:{}};
+var loadedModel=null, vrmData=null, allBones=[];
+var orbitTarget=new THREE.Vector3(0,0.3,0),orbitTheta=0,orbitPhi=0.15,orbitDist=3.5,isDrag=false,lastM={x:0,y:0};
+var mobileJoystick={active:false,startX:0,startY:0,currentX:0,currentY:0};
 
-    const database = [
-        { q: "Что произойдет, если нажать F11 во время этого теста?", a: ["Браузер откроет подсказку", "Тест моментально заблокируется с результатом 0", "Ничего не произойдет"], c: 1 },
-        { q: "Какая технология используется для контроля полноэкранного режима?", a: ["HTML5 Fullscreen API", "CSS Grid", "SQL Injection"], c: 0 }
+function $(id){return document.getElementById(id)}
+function showErr(m){$('err-box').textContent=m;$('err-box').style.display='block';$('ok-box').style.display='none'}
+function showOk(m){$('ok-box').textContent=m;$('ok-box').style.display='block';$('err-box').style.display='none'}
+function clearMsg(){$('err-box').style.display='none';$('ok-box').style.display='none'}
+
+// ═══════════════════════════════════════════════════════
+// THREE.JS SCENE
+// ═══════════════════════════════════════════════════════
+var container=$('canvas-container');
+var scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x0a0a12,0.008);
+var cam=new THREE.PerspectiveCamera(40,innerWidth/innerHeight,0.01,200);
+cam.position.set(0,0.5,3.5);cam.lookAt(orbitTarget);
+var ren=new THREE.WebGLRenderer({antialias:true});
+ren.setSize(innerWidth,innerHeight);ren.setPixelRatio(Math.min(devicePixelRatio,2));
+ren.setClearColor(0x0a0a12);ren.shadowMap.enabled=true;ren.shadowMap.type=THREE.PCFSoftShadowMap;
+ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=1.2;
+container.prepend(ren.domElement);
+
+scene.add(new THREE.AmbientLight(0x506080,0.8));
+var kl=new THREE.DirectionalLight(0xdce8ff,1.4);kl.position.set(3,4,5);kl.castShadow=true;kl.shadow.mapSize.set(1024,1024);scene.add(kl);
+var fl=new THREE.DirectionalLight(0x64dcff,0.4);fl.position.set(-3,2,2);scene.add(fl);
+var rl=new THREE.DirectionalLight(0xa78bfa,0.5);rl.position.set(0,2,-4);scene.add(rl);
+scene.add(new THREE.PointLight(0x64dcff,0.3,10).translateY(-2).translateZ(2));
+var ambientLight=scene.children.find(function(c){return c.isAmbientLight});
+var gnd=new THREE.Mesh(new THREE.PlaneGeometry(30,30),new THREE.MeshStandardMaterial({color:0x0a0a12,roughness:0.95}));
+gnd.rotation.x=-Math.PI/2;gnd.position.y=-3;gnd.receiveShadow=true;scene.add(gnd);
+
+// ═══════════════════════════════════════════════════════
+// ORBIT CAMERA
+// ═══════════════════════════════════════════════════════
+ren.domElement.addEventListener('mousedown',function(e){if(e.button===2||e.button===1||(e.button===0&&e.altKey)){isDrag=true;lastM={x:e.clientX,y:e.clientY};e.preventDefault()}});
+window.addEventListener('mousemove',function(e){if(!isDrag)return;orbitTheta-=(e.clientX-lastM.x)*0.005;orbitPhi=Math.max(-1.2,Math.min(1.2,orbitPhi+(e.clientY-lastM.y)*0.005));lastM={x:e.clientX,y:e.clientY}});
+window.addEventListener('mouseup',function(){isDrag=false});
+ren.domElement.addEventListener('wheel',function(e){orbitDist=Math.max(0.3,Math.min(15,orbitDist+e.deltaY*0.005));e.preventDefault()},{passive:false});
+ren.domElement.addEventListener('contextmenu',function(e){e.preventDefault()});
+function updateCam(){
+  cam.position.x=orbitTarget.x+Math.sin(orbitTheta)*Math.cos(orbitPhi)*orbitDist;
+  cam.position.y=orbitTarget.y+Math.sin(orbitPhi)*orbitDist;
+  cam.position.z=orbitTarget.z+Math.cos(orbitTheta)*Math.cos(orbitPhi)*orbitDist;
+  cam.lookAt(orbitTarget);
+}
+
+// ═══════════════════════════════════════════════════════
+// LOADER CHAIN: load all format loaders from CDN
+// ═══════════════════════════════════════════════════════
+var loadersReady={gltf:false,fbx:false,vrm:false};
+var loaders={};
+
+function loadScript(url,cb){
+  var s=document.createElement('script');
+  s.src=url;
+  s.onload=function(){console.log('[HC] Loaded:',url);cb()};
+  s.onerror=function(){console.warn('[HC] Failed:',url);cb()};
+  document.head.appendChild(s);
+}
+
+// Chain: GLTFLoader → fflate → FBXLoader → three-vrm → JSZip
+loadScript('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js',function(){
+  loadersReady.gltf=!!THREE.GLTFLoader;
+  if(THREE.GLTFLoader) loaders.gltf=new THREE.GLTFLoader();
+
+  loadScript('https://cdn.jsdelivr.net/npm/fflate@0.6.9/umd/index.js',function(){
+    loadScript('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/FBXLoader.js',function(){
+      loadersReady.fbx=!!THREE.FBXLoader;
+      if(THREE.FBXLoader) loaders.fbx=new THREE.FBXLoader();
+
+      loadScript('https://cdn.jsdelivr.net/npm/@pixiv/three-vrm@0.6.11/lib/three-vrm.js',function(){
+        loadersReady.vrm=!!(window.THREE_VRM||THREE.VRM);
+
+        loadScript('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js',function(){
+          console.log('[HC] Loaders ready — GLTF:',loadersReady.gltf,'FBX:',loadersReady.fbx,'VRM:',loadersReady.vrm,'JSZip:',!!window.JSZip);
+        });
+      });
+    });
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+// MODEL LOADING — single file, ZIP, drop, multi-file
+// ═══════════════════════════════════════════════════════
+$('load-btn').onclick=function(){$('model-file').click()};
+$('load-multi-btn').onclick=function(){$('model-multi').click()};
+
+// Single file (VRM, FBX, GLB, ZIP)
+$('model-file').onchange=function(e){
+  var f=e.target.files[0];if(!f)return;
+  handleFile(f);
+};
+
+// Multi-file (FBX + textures)
+$('model-multi').onchange=function(e){
+  var files=Array.from(e.target.files);if(!files.length)return;
+  handleMultiFiles(files);
+};
+
+// Drop zone
+var dzEl=$('drop-zone');
+dzEl.addEventListener('dragover',function(e){e.preventDefault();e.stopPropagation();dzEl.classList.add('over')});
+dzEl.addEventListener('dragleave',function(e){e.preventDefault();dzEl.classList.remove('over')});
+dzEl.addEventListener('drop',function(e){
+  e.preventDefault();e.stopPropagation();dzEl.classList.remove('over');
+  var items=e.dataTransfer.items;
+  if(items&&items.length){
+    // Check for folder (webkitGetAsEntry)
+    var entries=[];
+    for(var i=0;i<items.length;i++){
+      var entry=items[i].webkitGetAsEntry&&items[i].webkitGetAsEntry();
+      if(entry) entries.push(entry);
+    }
+    if(entries.length===1&&entries[0].isDirectory){
+      readDirectoryEntries(entries[0]);
+      return;
+    }
+  }
+  // Fallback: treat as file list
+  var files=Array.from(e.dataTransfer.files);
+  if(files.length===1) handleFile(files[0]);
+  else if(files.length>1) handleMultiFiles(files);
+});
+
+// Also allow clicking drop zone
+dzEl.addEventListener('click',function(){$('model-file').click()});
+
+function readDirectoryEntries(dirEntry){
+  clearMsg();$('model-info').textContent='Reading folder...';
+  var reader=dirEntry.createReader();
+  var allEntries=[];
+  function readBatch(){
+    reader.readEntries(function(entries){
+      if(entries.length===0){
+        processDirectoryFiles(allEntries);
+      } else {
+        allEntries=allEntries.concat(entries);
+        readBatch();
+      }
+    });
+  }
+  readBatch();
+}
+
+function processDirectoryFiles(entries){
+  var filePromises=[];
+  for(var i=0;i<entries.length;i++){
+    if(entries[i].isFile){
+      filePromises.push(new Promise(function(resolve){
+        entries[i].file(function(f){resolve(f)});
+      }));
+    }
+  }
+  Promise.all(filePromises).then(function(files){handleMultiFiles(files)});
+}
+
+function handleFile(f){
+  clearMsg();
+  var ext=f.name.split('.').pop().toLowerCase();
+  $('model-info').textContent='Loading '+f.name+'...';
+
+  if(ext==='zip'){
+    loadZip(f);
+  } else {
+    var url=URL.createObjectURL(f);
+    if(ext==='vrm') loadVRM(url,f.name);
+    else if(ext==='fbx') loadFBX(url,f.name);
+    else loadGLB(url,f.name);
+  }
+}
+
+function handleMultiFiles(files){
+  clearMsg();
+  // Find the FBX/VRM/GLB
+  var modelFile=null;
+  var textureFiles=[];
+  for(var i=0;i<files.length;i++){
+    var ext=files[i].name.split('.').pop().toLowerCase();
+    if(['fbx','vrm','glb','gltf'].indexOf(ext)>=0&&!modelFile) modelFile=files[i];
+    else if(['png','jpg','jpeg','tga','bmp','tiff','webp'].indexOf(ext)>=0) textureFiles.push(files[i]);
+  }
+  if(!modelFile){showErr('No model file found in selection');return}
+
+  $('model-info').textContent='Loading '+modelFile.name+' + '+textureFiles.length+' textures...';
+
+  var ext=modelFile.name.split('.').pop().toLowerCase();
+  if(ext==='fbx'&&textureFiles.length>0){
+    loadFBXWithTextures(modelFile,textureFiles);
+  } else {
+    handleFile(modelFile);
+  }
+}
+
+// ─── ZIP LOADING ───
+function loadZip(zipFile){
+  if(!window.JSZip){showErr('JSZip not loaded yet. Try again in a moment.');return}
+  $('model-info').textContent='Extracting '+zipFile.name+'...';
+
+  JSZip.loadAsync(zipFile).then(function(zip){
+    var modelEntry=null;
+    var textureBlobs={};
+    var promises=[];
+
+    zip.forEach(function(path,entry){
+      if(entry.dir) return;
+      var fn=path.split('/').pop().toLowerCase();
+      var ext=fn.split('.').pop();
+
+      if(['fbx','vrm','glb','gltf'].indexOf(ext)>=0&&!modelEntry){
+        modelEntry={path:path,ext:ext,entry:entry};
+      }
+      if(['png','jpg','jpeg','tga','bmp','webp'].indexOf(ext)>=0){
+        promises.push(entry.async('blob').then(function(blob){
+          var baseName=path.split('/').pop();
+          textureBlobs[baseName]=URL.createObjectURL(blob);
+          // Also store without extension variations
+          textureBlobs[baseName.toLowerCase()]=URL.createObjectURL(blob);
+        }));
+      }
+    });
+
+    if(!modelEntry){showErr('No model file found in ZIP');return}
+
+    Promise.all(promises).then(function(){
+      modelEntry.entry.async('arraybuffer').then(function(buf){
+        $('model-info').textContent='Loading '+modelEntry.path.split('/').pop()+'...';
+
+        if(modelEntry.ext==='fbx'){
+          loadFBXFromBuffer(buf,modelEntry.path.split('/').pop(),textureBlobs);
+        } else if(modelEntry.ext==='vrm'||modelEntry.ext==='glb'||modelEntry.ext==='gltf'){
+          var blob=new Blob([buf]);
+          var url=URL.createObjectURL(blob);
+          if(modelEntry.ext==='vrm') loadVRM(url,modelEntry.path.split('/').pop());
+          else loadGLB(url,modelEntry.path.split('/').pop());
+        }
+      });
+    });
+  }).catch(function(err){showErr('ZIP error: '+err.message)});
+}
+
+// ─── FBX WITH TEXTURES (multi-file or ZIP) ───
+function loadFBXWithTextures(modelFile,textureFiles){
+  if(!loaders.fbx){showErr('FBXLoader not available');return}
+
+  // Create blob URLs for textures
+  var texMap={};
+  for(var i=0;i<textureFiles.length;i++){
+    var tf=textureFiles[i];
+    texMap[tf.name]=URL.createObjectURL(tf);
+    texMap[tf.name.toLowerCase()]=URL.createObjectURL(tf);
+  }
+
+  var reader=new FileReader();
+  reader.onload=function(){loadFBXFromBuffer(reader.result,modelFile.name,texMap)};
+  reader.readAsArrayBuffer(modelFile);
+}
+
+function loadFBXFromBuffer(buf,name,texMap){
+  if(!loaders.fbx){showErr('FBXLoader not available');return}
+
+  // Custom resource manager to resolve textures
+  var mgr=new THREE.LoadingManager();
+  mgr.setURLModifier(function(url){
+    // Extract filename from the path
+    var fn=url.split('/').pop().split('\\').pop();
+    if(texMap[fn]) return texMap[fn];
+    if(texMap[fn.toLowerCase()]) return texMap[fn.toLowerCase()];
+    // Try without path
+    var noExt=fn.replace(/\.[^.]+$/,'');
+    for(var key in texMap){
+      if(key.replace(/\.[^.]+$/,'').toLowerCase()===noExt.toLowerCase()) return texMap[key];
+    }
+    return url;
+  });
+
+  var fbxLoader=new THREE.FBXLoader(mgr);
+  try{
+    var obj=fbxLoader.parse(buf);
+    if(!prepareScene(obj,name)) return;
+    autoDetectByName();
+  }catch(err){
+    showErr('FBX parse error: '+err.message);
+  }
+}
+
+// ─── FBX (single file, no textures) ───
+function loadFBX(url,name){
+  if(!loaders.fbx){showErr('FBXLoader not available. Try GLB format instead.');return}
+  loaders.fbx.load(url,function(obj){
+    URL.revokeObjectURL(url);
+    if(!prepareScene(obj,name)) return;
+    autoDetectByName();
+  },
+  function(p){if(p.total)$('model-info').textContent='Loading '+name+'... '+((p.loaded/p.total)*100|0)+'%'},
+  function(er){showErr('FBX load failed: '+(er.message||er));URL.revokeObjectURL(url)});
+}
+
+function prepareScene(obj,fileName){
+  if(loadedModel) scene.remove(loadedModel);
+  A.head=A.neck=A.jaw=null;A.headI=A.neckI=A.jawI=null;
+  A.morphMesh=null;A.morphIdx=-1;A.phonemeMorphs={};allBones=[];vrmData=null;
+
+  loadedModel=obj;
+
+  // Scale & center
+  var box=new THREE.Box3().setFromObject(loadedModel);
+  var sz=box.getSize(new THREE.Vector3()),ctr=box.getCenter(new THREE.Vector3());
+  var mx=Math.max(sz.x,sz.y,sz.z);
+  if(mx===0){showErr('Empty model');return false}
+  var sc=2.5/mx;
+  loadedModel.scale.multiplyScalar(sc);
+  loadedModel.position.sub(ctr.multiplyScalar(sc));
+
+  var nb=new THREE.Box3().setFromObject(loadedModel);
+  nb.getCenter(orbitTarget);
+
+  loadedModel.traverse(function(c){c.castShadow=true;c.receiveShadow=true});
+  scene.add(loadedModel);
+
+  // Collect ALL bones
+  loadedModel.traverse(function(c){if(c.isBone) allBones.push(c)});
+
+  // Collect ALL morph targets across all meshes
+  allMorphs=[];
+  loadedModel.traverse(function(c){
+    if(c.isMesh&&c.morphTargetDictionary){
+      var ent=Object.entries(c.morphTargetDictionary);
+      for(var i=0;i<ent.length;i++) allMorphs.push({mesh:c,name:ent[i][0],idx:ent[i][1],meshName:c.name});
+    }
+  });
+
+  // Populate morph dropdown + tester
+  var mSel=$('morph-sel');
+  mSel.innerHTML='<option value="">None (use jaw bone)</option>';
+  var testerDiv=$('morph-tester-list');
+  testerDiv.innerHTML='';
+  var autoMorph=null;
+
+  if(allMorphs.length){
+    $('morph-section').style.display='block';
+    $('morph-tester').style.display='block';
+
+    // Mouth-related patterns for auto-detection (priority order)
+    var mouthPatterns=[
+      /^mouth[_\s]?open$/i, /^jaw[_\s]?open$/i, /^aa?$/i,
+      /viseme.*aa/i, /viseme.*oh/i,
+      /mouth.*open/i, /jaw.*open/i, /open.*mouth/i,
+      /mouth.*a$/i, /^a$/i, /^oh$/i,
+      /mouth/i, /jaw/i
     ];
 
-    // БЛОКИРОВКА ГОРЯЧИХ КЛАВИШ (F11, Ctrl, Alt, Shift, Win/Cmd, Tab, Скриншоты)
-    window.addEventListener('keydown', function(e) {
-        if (!isTestRunning) return;
-
-        // Блокируем F11, Tab, Escape
-        if (e.key === 'F11' || e.key === 'Tab' || e.key === 'Escape') {
-            e.preventDefault();
-            e.stopPropagation();
-            triggerTotalLock("Попытка использования запрещенных клавиш навигации (" + e.key + ").");
-        }
-
-        // Блокируем любые комбинации с Ctrl, Alt, Shift, Meta (например: Alt+Tab, Ctrl+C, Ctrl+Shift+I)
-        if (e.ctrlKey || e.altKey || e.shiftKey || e.metaKey) {
-            e.preventDefault();
-            e.stopPropagation();
-            triggerTotalLock("Попытка использования системных комбинаций клавиш.");
-        }
-    }, true);
-
-    // Блокировка правой кнопки мыши и контекстного меню
-    document.addEventListener('contextmenu', e => {
-        if (isTestRunning) {
-            e.preventDefault();
-            triggerTotalLock("Попытка вызвать контекстное меню.");
-        }
-    });
-
-    // Запуск теста и жесткий вход в Fullscreen
-    function initStrictTest() {
-        let doc = document.documentElement;
-        let requestMethod = doc.requestFullscreen || doc.mozRequestFullScreen || doc.webkitRequestFullscreen || doc.msRequestFullscreen;
-        
-        if (requestMethod) {
-            requestMethod.call(doc).then(() => {
-                // Вход в Fullscreen успешен
-                isTestRunning = true;
-                document.getElementById('start-screen').classList.add('hidden');
-                document.getElementById('quiz-screen').classList.remove('hidden');
-                renderQuestion();
-                
-                // Включаем агрессивный цикл проверки фокуса через интервал
-                startAggressiveCheck();
-            }).catch((err) => {
-                alert("Ошибка: Браузер заблокировал переход. Разрешите полноэкранный режим в настройках сайта.");
-            });
-        }
+    // Mesh name scoring: prefer body/face meshes, penalize eye/hair/accessory meshes
+    function meshScore(meshName){
+      var n=meshName.toLowerCase();
+      if(/eye|lash|brow|pupil/i.test(n)) return -10; // definitely wrong mesh
+      if(/body|face|head|skin|mesh/i.test(n)) return 5; // likely correct
+      if(/teeth|tongue|mouth/i.test(n)) return 3; // plausible
+      return 0; // neutral
     }
 
-    // Постоянный мониторинг фокуса (каждые 100 миллисекунд)
-    function startAggressiveCheck() {
-        setInterval(() => {
-            if (!isTestRunning) return;
+    var bestScore=-999, bestMorph=null, bestVal=null;
 
-            // Проверка 1: Вышел ли браузер из Fullscreen?
-            let fsElement = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
-            if (!fsElement) {
-                triggerTotalLock("Выход из полноэкранного режима интерфейса.");
-            }
+    for(var i=0;i<allMorphs.length;i++){
+      var m=allMorphs[i];
+      var ov=JSON.stringify({mn:m.meshName,idx:m.idx,mi:i});
 
-            // Проверка 2: Потерян ли фокус документа (кликнули на другое окно/уведомление)?
-            if (!document.hasFocus()) {
-                triggerTotalLock("Потеря фокуса окна (клик вне зоны теста).");
-            }
-        }, 100);
+      // Dropdown option
+      var o=document.createElement('option');
+      o.value=ov;
+      o.textContent=m.meshName+' → '+m.name;
+      mSel.appendChild(o);
+
+      // Score this morph for mouth auto-assignment
+      for(var p=0;p<mouthPatterns.length;p++){
+        if(mouthPatterns[p].test(m.name)){
+          // Higher pattern priority (lower index) = higher score
+          var score=(mouthPatterns.length-p)*10 + meshScore(m.meshName);
+          if(score>bestScore){
+            bestScore=score;bestMorph={morph:m,val:ov};
+          }
+          break;
+        }
+      }
+
+      // Tester row
+      buildMorphTesterRow(testerDiv,m,i,ov);
     }
 
-    // Агрессивное отслеживание Visibility API (сворачивание, переключение вкладок)
-    document.addEventListener("visibilitychange", () => {
-        if (document.hidden && isTestRunning) {
-            triggerTotalLock("Переключение на другую вкладку или сворачивание браузера.");
+    // Auto-assign best mouth morph
+    if(bestMorph){
+      autoMorph=bestMorph;
+      mSel.value=autoMorph.val;
+      A.morphMesh=autoMorph.morph.mesh;
+      A.morphIdx=autoMorph.morph.idx;
+      var activeRow=testerDiv.querySelector('[data-mi="'+allMorphs.indexOf(autoMorph.morph)+'"]');
+      if(activeRow){
+        var n=activeRow.querySelector('.morph-tester-name');if(n)n.classList.add('active');
+        var b=activeRow.querySelector('.morph-map');if(b){b.classList.add('mapped');b.textContent='✓ Mapped'}
+      }
+    }
+    
+    // Auto-detect phoneme morphs (A, E, I, O, U)
+    var phonemePatterns={
+      a: [/\baa?\b/i, /viseme.*aa/i, /mouth.*a$/i],
+      e: [/\bee?\b/i, /viseme.*ee/i, /mouth.*e$/i],
+      i: [/\bii?\b/i, /viseme.*ii/i, /mouth.*i$/i],
+      o: [/\boo?\b/i, /viseme.*oh/i, /mouth.*o$/i],
+      u: [/\buu?\b/i, /viseme.*uu/i, /mouth.*u$/i]
+    };
+    for(var ph in phonemePatterns){
+      for(var i=0;i<allMorphs.length;i++){
+        for(var p=0;p<phonemePatterns[ph].length;p++){
+          if(phonemePatterns[ph][p].test(allMorphs[i].name)){
+            A.phonemeMorphs[ph]={mesh:allMorphs[i].mesh,idx:allMorphs[i].idx};
+            break;
+          }
         }
-    });
+        if(A.phonemeMorphs[ph]) break;
+      }
+    }
+    if(Object.keys(A.phonemeMorphs).length>0){
+      $('phoneme-toggle').style.display='block';
+      console.log('[Phoneme] Auto-detected:',Object.keys(A.phonemeMorphs));
+    }
+  } else {
+    $('morph-section').style.display='none';
+    $('morph-tester').style.display='none';
+  }
 
-    // Отрисовка вопросов
-    function renderQuestion() {
-        if (currentQ >= database.length) {
-            finishTest();
-            return;
+  $('model-info').textContent=fileName+' — '+allBones.length+' bones, '+allMorphs.length+' morphs';
+  return true;
+}
+
+var allMorphs=[];
+
+function buildMorphTesterRow(container,morph,idx,optVal){
+  var row=document.createElement('div');
+  row.className='morph-tester-row';
+  row.setAttribute('data-mi',idx);
+
+  var name=document.createElement('span');
+  name.className='morph-tester-name';
+  name.textContent=morph.meshName+' → '+morph.name;
+  name.title='Click to assign as mouth control';
+
+  var val=document.createElement('span');
+  val.className='morph-tester-val';
+  val.textContent='0%';
+
+  var slider=document.createElement('input');
+  slider.type='range';slider.min='0';slider.max='300';slider.value='0';
+  slider.className='morph-slider';
+
+  var mapBtn=document.createElement('button');
+  mapBtn.className='morph-map';
+  mapBtn.textContent='▶ Map';
+  mapBtn.title='Map this morph to RT / Space';
+
+  // Slider: preview this morph in real-time
+  slider.oninput=function(){
+    var v=parseInt(this.value)/100;
+    morph.mesh.morphTargetInfluences[morph.idx]=v;
+    val.textContent=Math.round(v*100)+'%';
+  };
+  // Reset on release (unless it's the active mouth morph)
+  slider.onchange=function(){
+    if(A.morphMesh!==morph.mesh||A.morphIdx!==morph.idx){
+      morph.mesh.morphTargetInfluences[morph.idx]=0;
+      val.textContent='0%';
+      this.value='0';
+    }
+  };
+
+  function assignMorph(){
+    // Clear all active highlights and mapped states
+    container.querySelectorAll('.morph-tester-name').forEach(function(n){n.classList.remove('active')});
+    container.querySelectorAll('.morph-map').forEach(function(b){b.classList.remove('mapped');b.textContent='▶ Map'});
+    name.classList.add('active');
+    mapBtn.classList.add('mapped');
+    mapBtn.textContent='✓ Mapped';
+    A.morphMesh=morph.mesh;A.morphIdx=morph.idx;
+    $('morph-sel').value=optVal;
+
+    // Auto-set Range to match current slider preview value (if > 100%)
+    var sliderVal=parseInt(slider.value)/100;
+    if(sliderVal>1){
+      CFG.mRange=sliderVal;
+      $('mr-v').textContent=Math.round(CFG.mRange*100)+'%';
+    }
+
+    // Reset all other morph previews
+    for(var j=0;j<allMorphs.length;j++){
+      if(j!==idx) allMorphs[j].mesh.morphTargetInfluences[allMorphs[j].idx]=0;
+    }
+    var allSliders=container.querySelectorAll('.morph-slider');
+    allSliders.forEach(function(s,si){if(si!==idx){s.value='0'}});
+    var allVals=container.querySelectorAll('.morph-tester-val');
+    allVals.forEach(function(v,vi){if(vi!==idx){v.textContent='0%'}});
+  }
+
+  // Both name click and button click assign
+  name.onclick=assignMorph;
+  mapBtn.onclick=assignMorph;
+
+  row.appendChild(name);row.appendChild(val);row.appendChild(slider);row.appendChild(mapBtn);
+  container.appendChild(row);
+}
+
+// ─── VRM ───
+function loadVRM(url,name){
+  if(!loaders.gltf){showErr('GLTFLoader not available');return}
+
+  loaders.gltf.load(url,function(gltf){
+    URL.revokeObjectURL(url);
+
+    // Try three-vrm parsing
+    var VRM=window.THREE_VRM||THREE.VRM||(typeof THREEVRM!=='undefined'?THREEVRM:null);
+    if(VRM&&VRM.from){
+      VRM.from(gltf).then(function(vrm){
+        if(!prepareScene(vrm.scene||gltf.scene,name)) return;
+        vrmData=vrm;
+        autoDetectVRM(vrm);
+      }).catch(function(err){
+        console.warn('[HC] VRM parse failed, falling back to GLTF bone detection:',err);
+        if(!prepareScene(gltf.scene,name)) return;
+        autoDetectByName();
+      });
+    } else {
+      // No VRM lib — parse as GLTF and detect bones by name
+      console.warn('[HC] three-vrm not loaded, using bone name detection');
+      if(!prepareScene(gltf.scene,name)) return;
+      autoDetectByName();
+    }
+  },
+  function(p){if(p.total)$('model-info').textContent='Loading '+name+'... '+((p.loaded/p.total)*100|0)+'%'},
+  function(er){showErr('VRM load failed: '+(er.message||er));URL.revokeObjectURL(url)});
+}
+
+// ─── GLB/GLTF ───
+function loadGLB(url,name){
+  if(!loaders.gltf){showErr('GLTFLoader not available');return}
+
+  loaders.gltf.load(url,function(gltf){
+    URL.revokeObjectURL(url);
+    if(!prepareScene(gltf.scene,name)) return;
+    autoDetectByName();
+  },
+  function(p){if(p.total)$('model-info').textContent='Loading '+name+'... '+((p.loaded/p.total)*100|0)+'%'},
+  function(er){showErr('GLB load failed: '+(er.message||er));URL.revokeObjectURL(url)});
+}
+
+// ═══════════════════════════════════════════════════════
+// BONE AUTO-DETECTION
+// ═══════════════════════════════════════════════════════
+
+// VRM: use standardized humanoid bone API
+function autoDetectVRM(vrm){
+  var humanoid=vrm.humanoid;
+  if(!humanoid){autoDetectByName();return}
+
+  // VRM v0 API: getBoneNode(boneName)
+  var headBone=null,neckBone=null,jawBone=null;
+  try{
+    // Try different VRM schema approaches
+    var schema=THREE.VRMSchema||window.VRMSchema||(typeof THREEVRM!=='undefined'?THREEVRM.VRMSchema:null);
+    if(schema&&schema.HumanoidBoneName){
+      headBone=humanoid.getBoneNode(schema.HumanoidBoneName.Head);
+      neckBone=humanoid.getBoneNode(schema.HumanoidBoneName.Neck);
+      jawBone=humanoid.getBoneNode(schema.HumanoidBoneName.Jaw);
+    } else {
+      headBone=humanoid.getBoneNode('head');
+      neckBone=humanoid.getBoneNode('neck');
+      jawBone=humanoid.getBoneNode('jaw');
+    }
+  }catch(e){
+    console.warn('[HC] VRM humanoid API error:',e);
+  }
+
+  // If VRM API didn't find them, fall back to name matching
+  if(!headBone) headBone=matchBoneByName(['head']);
+  if(!neckBone) neckBone=matchBoneByName(['neck']);
+  if(!jawBone) jawBone=matchBoneByName(['jaw','chin']);
+
+  applyBoneAssignment(headBone,neckBone,jawBone,'VRM humanoid');
+}
+
+// Generic: match bones by name patterns (works for FBX, GLB, Mixamo, ReadyPlayerMe, etc.)
+function autoDetectByName(){
+  var headBone=matchBoneByName(['head']);
+  var neckBone=matchBoneByName(['neck']);
+  var jawBone=matchBoneByName(['jaw','chin']);
+
+  applyBoneAssignment(headBone,neckBone,jawBone,'name matching');
+}
+
+function matchBoneByName(patterns){
+  // Pass 1: strict segment match (head in "mixamorig:Head", "head_06", "J_Bip_C_Head")
+  for(var p=0;p<patterns.length;p++){
+    var pat=patterns[p].toLowerCase();
+    for(var i=0;i<allBones.length;i++){
+      var n=allBones[i].name.toLowerCase();
+      if(n===pat) return allBones[i];
+      // Match as segment: surrounded by non-alpha or at boundaries
+      var re=new RegExp('(^|[^a-z])'+pat+'([^a-z]|$)');
+      if(re.test(n) && !/top|end|tip|nub|_ee?$/i.test(n)) return allBones[i];
+    }
+  }
+  // Pass 2: looser contains (but still exclude end-bones)
+  for(var p=0;p<patterns.length;p++){
+    var pat=patterns[p].toLowerCase();
+    for(var i=0;i<allBones.length;i++){
+      var n=allBones[i].name.toLowerCase();
+      if(n.indexOf(pat)>=0 && !/top|end|tip|nub|_ee?$/i.test(n)) return allBones[i];
+    }
+  }
+  return null;
+}
+
+function applyBoneAssignment(headBone,neckBone,jawBone,method){
+  if(headBone){A.head=headBone;A.headI=headBone.rotation.clone()}
+  if(neckBone){A.neck=neckBone;A.neckI=neckBone.rotation.clone()}
+  if(jawBone){A.jaw=jawBone;A.jawI=jawBone.rotation.clone();$('jaw-section').style.display='block'}
+  else{$('jaw-section').style.display='none'}
+
+  // Populate dropdowns
+  populateSelects(headBone,neckBone,jawBone);
+  $('bone-section').style.display='block';
+
+  // Status message
+  var msg='✓ Auto-detected via '+method+':\n';
+  msg+='Head: '+(headBone?headBone.name:'⚠ not found')+'\n';
+  msg+='Neck: '+(neckBone?neckBone.name:'⚠ not found')+'\n';
+  msg+='Jaw: '+(jawBone?jawBone.name:'not found');
+  if(A.morphMesh) msg+='\nMouth morph: auto-assigned ✓';
+  else if(allMorphs.length>0) msg+='\n'+allMorphs.length+' morphs found — use tester to pick mouth shape';
+  else if(!jawBone) msg+='\n⚠ No jaw bone or morphs. Head rotation only.';
+  if(!headBone) msg+='\n\n⚠ No head bone found. Select one manually from the dropdowns.';
+  showOk(msg);
+
+  console.log('[HC] Bones via',method,'— head:',headBone?.name,'neck:',neckBone?.name,'jaw:',jawBone?.name,'total:',allBones.length);
+}
+
+function populateSelects(headBone,neckBone,jawBone){
+  var roles=[{id:'sel-head',bone:headBone,key:'head'},{id:'sel-neck',bone:neckBone,key:'neck'},{id:'sel-jaw',bone:jawBone,key:'jaw'}];
+  for(var r=0;r<roles.length;r++){
+    var sel=$(roles[r].id);
+    sel.innerHTML='<option value="">(none)</option>';
+    for(var i=0;i<allBones.length;i++){
+      var o=document.createElement('option');
+      o.value=i;
+      o.textContent=allBones[i].name;
+      if(allBones[i]===roles[r].bone) o.selected=true;
+      sel.appendChild(o);
+    }
+    // Bind change handler
+    (function(key){
+      sel.onchange=function(){
+        // Reset old bone
+        if(A[key]&&A[key+'I']) A[key].rotation.copy(A[key+'I']);
+        if(this.value===''){A[key]=null;A[key+'I']=null}
+        else{
+          var bone=allBones[parseInt(this.value)];
+          A[key]=bone;A[key+'I']=bone.rotation.clone();
         }
-        let step = database[currentQ];
-        document.getElementById('question-title').innerText = `Вопрос ${currentQ + 1}: ${step.q}`;
-        
-        let html = '';
-        step.a.forEach((opt, idx) => {
-            html += `<button class="option-btn" onclick="submitAnswer(${idx})">${idx + 1}. ${opt}</button>`;
+        if(key==='jaw') $('jaw-section').style.display=A.jaw?'block':'none';
+      };
+    })(roles[r].key);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// MORPH TARGET SELECTOR
+// ═══════════════════════════════════════════════════════
+$('morph-sel').onchange=function(){
+  // Reset all morph previews
+  for(var j=0;j<allMorphs.length;j++) allMorphs[j].mesh.morphTargetInfluences[allMorphs[j].idx]=0;
+  var testerDiv=$('morph-tester-list');
+  testerDiv.querySelectorAll('.morph-tester-name').forEach(function(n){n.classList.remove('active')});
+  testerDiv.querySelectorAll('.morph-slider').forEach(function(s){s.value='0'});
+  testerDiv.querySelectorAll('.morph-tester-val').forEach(function(v){v.textContent='0%'});
+
+  if(!this.value){A.morphMesh=null;A.morphIdx=-1;return}
+  var p=JSON.parse(this.value);
+  loadedModel.traverse(function(c){
+    if(c.isMesh&&c.name===p.mn){A.morphMesh=c;A.morphIdx=p.idx}
+  });
+  // Highlight matching tester row
+  if(p.mi!==undefined){
+    var row=testerDiv.querySelector('[data-mi="'+p.mi+'"] .morph-tester-name');
+    if(row) row.classList.add('active');
+  }
+};
+
+// ═══════════════════════════════════════════════════════
+// JAW AXIS CONFIG
+// ═══════════════════════════════════════════════════════
+$('ax-x').onclick=function(){setAx('x')};$('ax-y').onclick=function(){setAx('y')};$('ax-z').onclick=function(){setAx('z')};
+$('dir-p').onclick=function(){setDir(1)};$('dir-n').onclick=function(){setDir(-1)};
+function setAx(a){CFG.jawAxis=a;document.querySelectorAll('[data-a]').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-a')===a)})}
+function setDir(d){CFG.jawDir=d;document.querySelectorAll('[data-d]').forEach(function(b){b.classList.toggle('active',parseInt(b.getAttribute('data-d'))===d)})}
+
+// ═══════════════════════════════════════════════════════
+// SENSITIVITY
+// ═══════════════════════════════════════════════════════
+$('hs-d').onclick=function(){CFG.hS=Math.max(0.1,CFG.hS-0.1);$('hs-v').textContent=CFG.hS.toFixed(1)};
+$('hs-u').onclick=function(){CFG.hS=Math.min(3,CFG.hS+0.1);$('hs-v').textContent=CFG.hS.toFixed(1)};
+$('ms-d').onclick=function(){CFG.mS=Math.max(0.1,CFG.mS-0.1);$('ms-v').textContent=CFG.mS.toFixed(1)};
+$('ms-u').onclick=function(){CFG.mS=Math.min(3,CFG.mS+0.1);$('ms-v').textContent=CFG.mS.toFixed(1)};
+$('mr-d').onclick=function(){CFG.mRange=Math.max(0.25,CFG.mRange-0.25);$('mr-v').textContent=Math.round(CFG.mRange*100)+'%'};
+$('mr-u').onclick=function(){CFG.mRange=Math.min(10,CFG.mRange+0.25);$('mr-v').textContent=Math.round(CFG.mRange*100)+'%'};
+
+// ═══════════════════════════════════════════════════════
+// CAMERA FOCUS
+// ═══════════════════════════════════════════════════════
+function animCam(tgt,dist,dur){
+  dur=dur||600;var st=orbitTarget.clone(),sd=orbitDist,sth=orbitTheta,sph=orbitPhi,t0=performance.now();
+  function step(now){
+    var t=Math.min((now-t0)/dur,1),e=t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+    orbitTarget.lerpVectors(st,tgt,e);orbitDist=sd+(dist-sd)*e;
+    orbitTheta=sth+(0-sth)*e;orbitPhi=sph+(0.1-sph)*e;
+    if(t<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+$('cam-head').onclick=function(){
+  if(!loadedModel) return;
+  if(A.head){
+    var wp=new THREE.Vector3();A.head.getWorldPosition(wp);
+    animCam(wp,1.0);
+  } else {
+    var b=new THREE.Box3().setFromObject(loadedModel),s=b.getSize(new THREE.Vector3());
+    var c=b.getCenter(new THREE.Vector3());c.y=b.max.y-s.y*0.15;
+    animCam(c,s.y*0.6);
+  }
+};
+$('cam-body').onclick=function(){
+  if(!loadedModel) return;
+  var b=new THREE.Box3().setFromObject(loadedModel),c=b.getCenter(new THREE.Vector3()),s=b.getSize(new THREE.Vector3());
+  animCam(c,Math.max(s.x,s.y,s.z)*2);
+};
+$('cam-reset').onclick=function(){
+  if(loadedModel){var b=new THREE.Box3().setFromObject(loadedModel),c=b.getCenter(new THREE.Vector3()),s=b.getSize(new THREE.Vector3());animCam(c,Math.max(s.x,s.y,s.z)*2)}
+  else animCam(new THREE.Vector3(0,0.3,0),3.5);
+};
+
+// ═══════════════════════════════════════════════════════
+// GAMEPAD
+// ═══════════════════════════════════════════════════════
+window.addEventListener('gamepadconnected',function(e){
+  $('gp-dot').className='sd on';$('gp-status').textContent=e.gamepad.id.substring(0,40);
+  $('gp-hint').textContent='Index '+e.gamepad.index+' · '+e.gamepad.buttons.length+' btn · '+e.gamepad.axes.length+' axes';
+});
+window.addEventListener('gamepaddisconnected',function(){$('gp-dot').className='sd off';$('gp-status').textContent='Disconnected';$('gp-hint').textContent='Press any button to reconnect'});
+
+// ═══════════════════════════════════════════════════════
+// KEYBOARD
+// ═══════════════════════════════════════════════════════
+window.addEventListener('keydown',function(e){
+  if(e.target.tagName==='SELECT'||e.target.tagName==='INPUT')return;
+  S.keys[e.code]=true;if(e.code==='Space')e.preventDefault();
+});
+window.addEventListener('keyup',function(e){S.keys[e.code]=false});
+
+// ═══════════════════════════════════════════════════════
+// INPUT → STATE → MODEL
+// ═══════════════════════════════════════════════════════
+function dz(v){return Math.abs(v)<CFG.dz?0:v}
+
+function processInput(){
+  var k=S.keys,spd=2.5;
+  var kY=0,kP=0,kR=0,kM=0;
+  if(k['KeyD'])kY+=spd;if(k['KeyA'])kY-=spd;
+  if(k['KeyS'])kP+=spd;if(k['KeyW'])kP-=spd;
+  if(k['KeyQ'])kR+=spd;if(k['KeyE'])kR-=spd;
+  if(k['Space'])kM=1;
+  if(k['Digit1'])kM=0.2;
+  if(k['Digit2'])kM=0.4;
+  if(k['Digit3'])kM=0.6;
+  if(k['Digit4'])kM=0.8;
+  if(k['Digit5'])kM=1;
+  if(k['KeyR']){S.tY=S.tP=S.tR=S.tM=0;return}
+
+  var gY=0,gP=0,gR=0,gM=0;
+  var pads=navigator.getGamepads?navigator.getGamepads():[];
+  for(var pi=0;pi<pads.length;pi++){
+    var gp=pads[pi];if(!gp)continue;
+    if($('gp-dot').className.indexOf('off')>=0){
+      $('gp-dot').className='sd on';$('gp-status').textContent=gp.id.substring(0,40);
+      $('gp-hint').textContent=gp.buttons.length+' btn · '+gp.axes.length+' axes';
+    }
+    gY=-dz(gp.axes[0])*spd;gP=-dz(gp.axes[1])*spd;
+    if(gp.axes.length>2)gR=-dz(gp.axes[2])*spd;
+    if(gp.buttons.length>7&&gp.buttons[7])gM=Math.max(gM,gp.buttons[7].value);
+    if(gp.axes.length>5){var tv=(gp.axes[5]+1)/2;if(tv>0.05)gM=Math.max(gM,tv)}
+    if(gp.buttons.length>3&&gp.buttons[3].pressed){S.tY=S.tP=S.tR=S.tM=0;return}
+    break;
+  }
+
+  var yIn=Math.abs(kY)>Math.abs(gY)?kY:gY;
+  var pIn=Math.abs(kP)>Math.abs(gP)?kP:gP;
+  var rIn=Math.abs(kR)>Math.abs(gR)?kR:gR;
+  var mIn=Math.max(kM,gM);
+
+  S.tY+=yIn*CFG.hS*0.016*60;S.tP+=pIn*CFG.hS*0.016*60;S.tR+=rIn*CFG.hS*0.016*60;
+  S.tM=mIn*CFG.mS;
+  S.tY=THREE.MathUtils.clamp(S.tY,-CFG.yawMax,CFG.yawMax);
+  S.tP=THREE.MathUtils.clamp(S.tP,-CFG.pitchMax,CFG.pitchMax);
+  S.tR=THREE.MathUtils.clamp(S.tR,-CFG.rollMax,CFG.rollMax);
+  S.tM=THREE.MathUtils.clamp(S.tM,0,1);
+}
+
+function applySmoothing(){
+  S.cY+=(S.tY-S.cY)*CFG.sm;S.cP+=(S.tP-S.cP)*CFG.sm;
+  S.cR+=(S.tR-S.cR)*CFG.sm;S.cM+=(S.tM-S.cM)*CFG.msm;
+}
+
+function applyToModel(){
+  var yr=THREE.MathUtils.degToRad(S.cY),pr=THREE.MathUtils.degToRad(S.cP),rr=THREE.MathUtils.degToRad(S.cR);
+
+  if(A.head&&A.headI){
+    A.head.rotation.set(A.headI.x+pr, A.headI.y+yr, A.headI.z+rr);
+  }
+  if(A.neck&&A.neckI){
+    A.neck.rotation.set(A.neckI.x+pr*0.4, A.neckI.y+yr*0.4, A.neckI.z+rr*0.3);
+  }
+  if(A.jaw&&A.jawI){
+    var d=S.cM*CFG.mRange*CFG.jawAngle*CFG.jawDir;
+    A.jaw.rotation.set(
+      A.jawI.x+(CFG.jawAxis==='x'?d:0),
+      A.jawI.y+(CFG.jawAxis==='y'?d:0),
+      A.jawI.z+(CFG.jawAxis==='z'?d:0)
+    );
+  }
+  if(A.morphMesh&&A.morphIdx>=0){
+    A.morphMesh.morphTargetInfluences[A.morphIdx]=S.cM*CFG.mRange;
+  }
+  
+  // Apply phoneme morphs
+  if(S.phoneme!=='neutral'&&A.phonemeMorphs[S.phoneme]){
+    var pm=A.phonemeMorphs[S.phoneme];
+    pm.mesh.morphTargetInfluences[pm.idx]=0.8;
+  }
+}
+
+function updateHUD(){
+  $('v-yaw').textContent=S.cY.toFixed(1)+'°';
+  $('v-pitch').textContent=S.cP.toFixed(1)+'°';
+  $('v-roll').textContent=S.cR.toFixed(1)+'°';
+  var mp=(S.cM*CFG.mRange*100).toFixed(0);
+  $('v-mouth').textContent=mp+'%';$('mouth-bar').style.width=Math.min(100,S.cM*100)+'%';
+}
+
+// ═══════════════════════════════════════════════════════
+// MAIN LOOP
+// ═══════════════════════════════════════════════════════
+function animate(){
+  requestAnimationFrame(animate);
+  processInput();applySmoothing();applyToModel();updateHUD();updateCam();
+  // VRM update (required for spring bones, look-at, etc.)
+  if(vrmData&&vrmData.update) vrmData.update(0.016);
+  ren.render(scene,cam);
+}
+animate();
+
+window.addEventListener('resize',function(){cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();ren.setSize(innerWidth,innerHeight)});
+
+// ═══════════════════════════════════════════════════════
+// DRAG PANELS (Desktop + Mobile)
+// ═══════════════════════════════════════════════════════
+(function(){
+  var dragEl=null,offsetX=0,offsetY=0;
+  
+  function startDrag(e,clientX,clientY){
+    // Only drag from header (.ht)
+    if(e.target.closest('.ht')&&!e.target.closest('.ht-toggle')){
+      dragEl=e.target.closest('.hp');
+      dragEl.classList.add('dragging');
+      var rect=dragEl.getBoundingClientRect();
+      offsetX=clientX-rect.left;offsetY=clientY-rect.top;
+      e.preventDefault();
+    }
+  }
+  
+  function moveDrag(clientX,clientY){
+    if(!dragEl)return;
+    dragEl.style.left=Math.max(0,Math.min(innerWidth-dragEl.offsetWidth,clientX-offsetX))+'px';
+    dragEl.style.top=Math.max(0,Math.min(innerHeight-dragEl.offsetHeight,clientY-offsetY))+'px';
+    dragEl.style.right='auto';dragEl.style.bottom='auto';
+  }
+  
+  function endDrag(){
+    if(dragEl){dragEl.classList.remove('dragging');dragEl=null}
+  }
+  
+  // Mouse events
+  document.addEventListener('mousedown',function(e){startDrag(e,e.clientX,e.clientY)});
+  document.addEventListener('mousemove',function(e){if(dragEl)moveDrag(e.clientX,e.clientY)});
+  document.addEventListener('mouseup',endDrag);
+  
+  // Touch events
+  document.addEventListener('touchstart',function(e){
+    if(e.touches.length===1)startDrag(e,e.touches[0].clientX,e.touches[0].clientY)
+  },{passive:false});
+  document.addEventListener('touchmove',function(e){
+    if(dragEl&&e.touches.length===1){moveDrag(e.touches[0].clientX,e.touches[0].clientY);e.preventDefault()}
+  },{passive:false});
+  document.addEventListener('touchend',endDrag);
+  
+  // Toggle collapse
+  document.addEventListener('click',function(e){
+    if(e.target.classList.contains('ht-toggle')){
+      var panel=e.target.closest('.hp');
+      panel.classList.toggle('collapsed');
+      e.target.textContent=panel.classList.contains('collapsed')?'+':'−';
+    }
+  });
+})();
+
+// ═══════════════════════════════════════════════════════
+// HIDE UI
+// ═══════════════════════════════════════════════════════
+$('hide-ui-btn').onclick=function(){
+  var hud=$('hud');
+  hud.classList.toggle('hidden');
+  this.textContent=hud.classList.contains('hidden')?'Show UI [H]':'Hide UI [H]';
+};
+window.addEventListener('keydown',function(e){
+  if(e.code==='KeyH'&&!e.target.closest('input,select,textarea')){
+    $('hide-ui-btn').click();
+  }
+});
+
+// Auto-collapse all panels on mobile (run after DOM ready)
+if(innerWidth<=768){
+  document.querySelectorAll('.hp').forEach(function(panel){
+    panel.classList.add('collapsed');
+    var toggle=panel.querySelector('.ht-toggle');
+    if(toggle)toggle.textContent='+';
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// k-ID BYPASS - Working Implementation with Mode Toggle
+// ═══════════════════════════════════════════════════════
+(function(){
+  var qrUrlInput = $('kid-qr-url');
+  var qrFileInput = $('kid-qr-file');
+  var verifyBtn = $('kid-verify');
+  var statusSpan = $('kid-status');
+  var outputDiv = $('kid-output');
+  var modeApiBtn = $('mode-api');
+  var modeStandaloneBtn = $('mode-standalone');
+  var modeDesc = $('mode-desc');
+  
+  // Mode toggle handlers
+  modeApiBtn.addEventListener('click', function(){
+    KIDBypass.setMode('api');
+    modeApiBtn.style.background = 'rgba(100,220,255,0.2)';
+    modeApiBtn.style.borderColor = '#64dcff';
+    modeStandaloneBtn.style.background = '';
+    modeStandaloneBtn.style.borderColor = '';
+    modeDesc.textContent = 'Using kibty.town API (fast, may be patched)';
+    statusSpan.textContent = 'Ready (API Mode)';
+    statusSpan.style.color = '#64dcff';
+  });
+  
+  modeStandaloneBtn.addEventListener('click', function(){
+    KIDBypass.setMode('standalone');
+    modeStandaloneBtn.style.background = 'rgba(100,220,255,0.2)';
+    modeStandaloneBtn.style.borderColor = '#64dcff';
+    modeApiBtn.style.background = '';
+    modeApiBtn.style.borderColor = '';
+    modeDesc.textContent = 'Direct verification (slower, 100% reliable)';
+    statusSpan.textContent = 'Ready (Standalone Mode)';
+    statusSpan.style.color = '#4ade80';
+  });
+  
+  // Drag & drop for QR image
+  qrUrlInput.addEventListener('dragover', function(e){
+    e.preventDefault();
+    this.style.borderColor = 'rgba(100,220,255,0.5)';
+  });
+  
+  qrUrlInput.addEventListener('dragleave', function(e){
+    this.style.borderColor = '';
+  });
+  
+  qrUrlInput.addEventListener('drop', function(e){
+    e.preventDefault();
+    this.style.borderColor = '';
+    var file = e.dataTransfer.files[0];
+    if(file && file.type.startsWith('image/')){
+      handleQRImage(file);
+    }
+  });
+  
+  // File input handler
+  qrFileInput.addEventListener('change', function(e){
+    var file = e.target.files[0];
+    if(file){
+      handleQRImage(file);
+    }
+  });
+  
+  // Handle QR image upload
+  async function handleQRImage(file){
+    statusSpan.textContent = 'Scanning QR code...';
+    statusSpan.style.color = '#facc15';
+    outputDiv.style.display = 'none';
+    
+    try{
+      var qrUrl = await KIDBypass.verifyFromImage(file);
+      qrUrlInput.value = qrUrl;
+      statusSpan.textContent = 'QR code detected!';
+      statusSpan.style.color = '#4ade80';
+    } catch(err){
+      statusSpan.textContent = 'Failed: ' + err.message;
+      statusSpan.style.color = '#f87171';
+      outputDiv.textContent = 'Error: ' + err.message;
+      outputDiv.style.display = 'block';
+    }
+  }
+  
+  // Verify button handler
+  verifyBtn.addEventListener('click', async function(){
+    var qrUrl = qrUrlInput.value.trim();
+    
+    if(!qrUrl){
+      statusSpan.textContent = 'Please enter QR code URL';
+      statusSpan.style.color = '#f87171';
+      return;
+    }
+    
+    if(KIDBypass.isVerifying()){
+      statusSpan.textContent = 'Verification in progress...';
+      statusSpan.style.color = '#facc15';
+      return;
+    }
+    
+    statusSpan.textContent = 'Verifying...';
+    statusSpan.style.color = '#facc15';
+    outputDiv.style.display = 'none';
+    verifyBtn.disabled = true;
+    verifyBtn.style.opacity = '0.5';
+    
+    try{
+      var result = await KIDBypass.verify(qrUrl, function(progress){
+        statusSpan.textContent = progress;
+      });
+      
+      statusSpan.textContent = '✓ Verified successfully!';
+      statusSpan.style.color = '#4ade80';
+      
+      outputDiv.textContent = 'Success! Your account has been verified as adult.\n\nGo back to Discord to continue.';
+      outputDiv.style.display = 'block';
+      outputDiv.style.color = '#4ade80';
+      
+      // Clear input after success
+      setTimeout(function(){
+        qrUrlInput.value = '';
+      }, 2000);
+      
+    } catch(err){
+      statusSpan.textContent = 'Verification failed';
+      statusSpan.style.color = '#f87171';
+      
+      outputDiv.textContent = 'Error: ' + err.message + '\n\nMake sure:\n1. QR code URL is correct\n2. You\'re using the QR from Discord verification page\n3. Try switching to ' + (KIDBypass.getMode() === 'api' ? 'Standalone' : 'API') + ' mode';
+      outputDiv.style.display = 'block';
+      outputDiv.style.color = '#f87171';
+    } finally {
+      verifyBtn.disabled = false;
+      verifyBtn.style.opacity = '1';
+    }
+  });
+  
+  console.log('[k-ID Bypass] Initialized. Mode:', KIDBypass.getMode(), '| API:', KIDBypass.getEndpoint());
+})();
+
+console.log('[HC] Initialized. Three.js r'+THREE.REVISION);
+
+// ═══════════════════════════════════════════════════════
+// LIGHTING CONTROLS
+// ═══════════════════════════════════════════════════════
+(function(){
+  function updateLightColor(light,colorHex){light.color.setStyle(colorHex)}
+  function updateLightIntensity(light,val){light.intensity=parseFloat(val)}
+  function updateLightPos(light,x,y,z){light.position.set(x,y,z)}
+  
+  // Key Light
+  $('key-intensity').oninput=function(){updateLightIntensity(kl,this.value);$('key-val').textContent=this.value};
+  $('key-color').oninput=function(){updateLightColor(kl,this.value)};
+  $('key-x').oninput=function(){kl.position.x=parseFloat(this.value);$('key-x-val').textContent=this.value};
+  $('key-y').oninput=function(){kl.position.y=parseFloat(this.value);$('key-y-val').textContent=this.value};
+  $('key-z').oninput=function(){kl.position.z=parseFloat(this.value);$('key-z-val').textContent=this.value};
+  $('key-toggle').onclick=function(){
+    kl.visible=!kl.visible;
+    this.classList.toggle('active');
+    this.textContent=kl.visible?'ON':'OFF';
+  };
+  
+  // Fill Light
+  $('fill-intensity').oninput=function(){updateLightIntensity(fl,this.value);$('fill-val').textContent=this.value};
+  $('fill-color').oninput=function(){updateLightColor(fl,this.value)};
+  $('fill-x').oninput=function(){fl.position.x=parseFloat(this.value);$('fill-x-val').textContent=this.value};
+  $('fill-y').oninput=function(){fl.position.y=parseFloat(this.value);$('fill-y-val').textContent=this.value};
+  $('fill-z').oninput=function(){fl.position.z=parseFloat(this.value);$('fill-z-val').textContent=this.value};
+  $('fill-toggle').onclick=function(){
+    fl.visible=!fl.visible;
+    this.classList.toggle('active');
+    this.textContent=fl.visible?'ON':'OFF';
+  };
+  
+  // Rim Light
+  $('rim-intensity').oninput=function(){updateLightIntensity(rl,this.value);$('rim-val').textContent=this.value};
+  $('rim-color').oninput=function(){updateLightColor(rl,this.value)};
+  $('rim-x').oninput=function(){rl.position.x=parseFloat(this.value);$('rim-x-val').textContent=this.value};
+  $('rim-y').oninput=function(){rl.position.y=parseFloat(this.value);$('rim-y-val').textContent=this.value};
+  $('rim-z').oninput=function(){rl.position.z=parseFloat(this.value);$('rim-z-val').textContent=this.value};
+  $('rim-toggle').onclick=function(){
+    rl.visible=!rl.visible;
+    this.classList.toggle('active');
+    this.textContent=rl.visible?'ON':'OFF';
+  };
+  
+  // Ambient Light
+  $('ambient-intensity').oninput=function(){updateLightIntensity(ambientLight,this.value);$('ambient-val').textContent=this.value};
+  $('ambient-color').oninput=function(){updateLightColor(ambientLight,this.value)};
+  $('ambient-toggle').onclick=function(){
+    ambientLight.visible=!ambientLight.visible;
+    this.classList.toggle('active');
+    this.textContent=ambientLight.visible?'ON':'OFF';
+  };
+})();
+
+// ═══════════════════════════════════════════════════════
+// QUICK START TUTORIAL
+// ═══════════════════════════════════════════════════════
+(function(){
+  var steps=[
+    {title:'Welcome!',text:'This tool lets you control a 3D avatar to bypass Discord age verification',step:'Step 1: Load a model using the panel on the right →'},
+    {title:'Adjust Lighting',text:'Use the Lighting panel to add proper shadows on the face for better verification success',step:'Step 2: Adjust light position (X,Y,Z) and intensity to create natural shadows'},
+    {title:'Control Your Avatar',text:'Use WASD for head movement, Space for mouth opening',step:'Step 3: Test controls and adjust sensitivity'},
+    {title:'Ready to Go!',text:'When ready, use OBS Virtual Camera to capture this window',step:'Step 4: Open Discord and start verification'}
+  ];
+  var current=0;
+  var overlay=$('tutorial-overlay');
+  var hasSeenTutorial=localStorage.getItem('tutorial_seen');
+  
+  function showStep(i){
+    current=i;
+    $('tut-title').textContent=steps[i].title;
+    $('tut-text').textContent=steps[i].text;
+    $('tut-step').textContent=steps[i].step;
+    $('tut-btn').textContent=i===steps.length-1?'Got it!':'Next';
+    var prog=$('tut-progress');
+    prog.innerHTML='';
+    for(var j=0;j<steps.length;j++){
+      var dot=document.createElement('div');
+      dot.className='tutorial-dot'+(j===i?' active':'');
+      prog.appendChild(dot);
+    }
+  }
+  
+  $('tut-btn').onclick=function(){
+    if(current<steps.length-1){showStep(current+1)}
+    else{overlay.classList.remove('active');localStorage.setItem('tutorial_seen','1')}
+  };
+  $('tut-skip').onclick=function(){overlay.classList.remove('active');localStorage.setItem('tutorial_seen','1')};
+  
+  if(!hasSeenTutorial){
+    setTimeout(function(){overlay.classList.add('active');showStep(0)},1000);
+  }
+})();
+
+// ═══════════════════════════════════════════════════════
+// PHONEME CONTROLS
+// ═══════════════════════════════════════════════════════
+$('phoneme-toggle').onclick=function(){
+  var panel=$('phoneme-panel');
+  panel.classList.toggle('visible');
+};
+document.querySelectorAll('.phoneme-btn').forEach(function(btn){
+  btn.onclick=function(){
+    document.querySelectorAll('.phoneme-btn').forEach(function(b){b.classList.remove('active')});
+    this.classList.add('active');
+    S.phoneme=this.getAttribute('data-phoneme');
+    // Reset all phoneme morphs
+    for(var ph in A.phonemeMorphs){
+      A.phonemeMorphs[ph].mesh.morphTargetInfluences[A.phonemeMorphs[ph].idx]=0;
+    }
+  };
+});
+window.addEventListener('keydown',function(e){
+  if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
+  if(e.code==='KeyP'){$('phoneme-toggle').click()}
+});
+
+// ═══════════════════════════════════════════════════════
+// MOBILE VIRTUAL JOYSTICK
+// ═══════════════════════════════════════════════════════
+(function(){
+  var joyHead=$('joystick-head');
+  var joyStick=$('joystick-head-stick');
+  var baseRect=null;
+  
+  function startJoy(e){
+    e.preventDefault();
+    baseRect=joyHead.getBoundingClientRect();
+    mobileJoystick.active=true;
+    mobileJoystick.startX=baseRect.left+baseRect.width/2;
+    mobileJoystick.startY=baseRect.top+baseRect.height/2;
+  }
+  function moveJoy(e){
+    if(!mobileJoystick.active)return;
+    e.preventDefault();
+    var touch=e.touches?e.touches[0]:e;
+    var dx=touch.clientX-mobileJoystick.startX;
+    var dy=touch.clientY-mobileJoystick.startY;
+    var dist=Math.sqrt(dx*dx+dy*dy);
+    var maxDist=50;
+    if(dist>maxDist){dx=dx/dist*maxDist;dy=dy/dist*maxDist}
+    joyStick.style.transform='translate(calc(-50% + '+dx+'px), calc(-50% + '+dy+'px))';
+    // Map to head rotation
+    S.tY=(dx/maxDist)*CFG.yawMax;
+    S.tP=(dy/maxDist)*CFG.pitchMax;
+  }
+  function endJoy(){
+    mobileJoystick.active=false;
+    joyStick.style.transform='translate(-50%,-50%)';
+    S.tY=0;S.tP=0;
+  }
+  
+  joyHead.addEventListener('touchstart',startJoy);
+  joyHead.addEventListener('mousedown',startJoy);
+  document.addEventListener('touchmove',moveJoy);
+  document.addEventListener('mousemove',moveJoy);
+  document.addEventListener('touchend',endJoy);
+  document.addEventListener('mouseup',endJoy);
+  
+  // Mobile buttons
+  $('mobile-mouth').addEventListener('touchstart',function(){this.classList.add('active');S.tM=1});
+  $('mobile-mouth').addEventListener('touchend',function(){this.classList.remove('active');S.tM=0});
+  $('mobile-roll-l').addEventListener('touchstart',function(){this.classList.add('active');S.tR=-CFG.rollMax});
+  $('mobile-roll-l').addEventListener('touchend',function(){this.classList.remove('active');S.tR=0});
+  $('mobile-roll-r').addEventListener('touchstart',function(){this.classList.add('active');S.tR=CFG.rollMax});
+  $('mobile-roll-r').addEventListener('touchend',function(){this.classList.remove('active');S.tR=0});
+})();
+
+// ═══════════════════════════════════════════════════════
+// GYROSCOPE SUPPORT
+// ═══════════════════════════════════════════════════════
+if(window.DeviceOrientationEvent){
+  window.addEventListener('deviceorientation',function(e){
+    if(!S.gyroEnabled)return;
+    if(e.beta!==null&&e.gamma!==null){
+      // Beta: front-back tilt (-180 to 180), Gamma: left-right tilt (-90 to 90)
+      S.tP=THREE.MathUtils.clamp((e.beta-90)/90*CFG.pitchMax,-CFG.pitchMax,CFG.pitchMax);
+      S.tY=THREE.MathUtils.clamp(e.gamma/90*CFG.yawMax,-CFG.yawMax,CFG.yawMax);
+    }
+  });
+  // Auto-enable gyro on mobile
+  if(/Android|iPhone|iPad/i.test(navigator.userAgent)){
+    setTimeout(function(){
+      if(typeof DeviceOrientationEvent.requestPermission==='function'){
+        DeviceOrientationEvent.requestPermission().then(function(state){
+          if(state==='granted'){S.gyroEnabled=true;console.log('[Gyro] Enabled')}
         });
-        document.getElementById('options-block').innerHTML = html;
+      } else {
+        S.gyroEnabled=true;console.log('[Gyro] Enabled (no permission needed)');
+      }
+    },2000);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// TOUCH GESTURES - Pinch Zoom & Two-Finger Rotate
+// ═══════════════════════════════════════════════════════
+(function(){
+  var lastDist=0,lastAngle=0;
+  ren.domElement.addEventListener('touchstart',function(e){
+    if(e.touches.length===2){
+      var dx=e.touches[1].clientX-e.touches[0].clientX;
+      var dy=e.touches[1].clientY-e.touches[0].clientY;
+      lastDist=Math.sqrt(dx*dx+dy*dy);
+      lastAngle=Math.atan2(dy,dx);
+      e.preventDefault();
     }
-
-    function submitAnswer(idx) {
-        if (idx === database[currentQ].c) score++;
-        currentQ++;
-        renderQuestion();
+  });
+  ren.domElement.addEventListener('touchmove',function(e){
+    if(e.touches.length===2){
+      var dx=e.touches[1].clientX-e.touches[0].clientX;
+      var dy=e.touches[1].clientY-e.touches[0].clientY;
+      var dist=Math.sqrt(dx*dx+dy*dy);
+      var angle=Math.atan2(dy,dx);
+      // Pinch zoom
+      if(lastDist>0){
+        var scale=dist/lastDist;
+        orbitDist=Math.max(0.3,Math.min(15,orbitDist/scale));
+      }
+      // Two-finger rotate
+      if(lastAngle!==0){
+        var deltaAngle=angle-lastAngle;
+        orbitTheta-=deltaAngle;
+      }
+      lastDist=dist;
+      lastAngle=angle;
+      e.preventDefault();
     }
+  });
+  ren.domElement.addEventListener('touchend',function(){lastDist=0;lastAngle=0});
+})();
 
-    function finishTest() {
-        isTestRunning = false;
-        document.getElementById('quiz-screen').classList.add('hidden');
-        document.getElementById('result-screen').classList.remove('hidden');
-        document.getElementById('score-details').innerText = `Ваш результат: ${score} из ${database.length} правильных ответов.`;
-        if (document.exitFullscreen) document.exitFullscreen().catch(()=>{});
+// ═══════════════════════════════════════════════════════
+// SKELETON LOADING CONTROLLER
+// ═══════════════════════════════════════════════════════
+(function(){
+  var overlay = $('skeleton-overlay');
+  
+  // Hide skeleton immediately after DOM ready
+  setTimeout(function(){
+    if(overlay && overlay.parentNode){
+      overlay.classList.add('fade-out');
+      setTimeout(function(){
+        if(overlay.parentNode) overlay.remove();
+      }, 400);
     }
-
-    // ТОТАЛЬНАЯ БЛОКИРОВКА (Вызывается при малейшем нарушении)
-    function triggerTotalLock(reason) {
-        if (!isTestRunning) return;
-        isTestRunning = false;
-
-        // Включаем «бесконечный» цикл алертов, чтобы намертво подвесить вкладку нарушителя
-        // ОС будет сфокусирована только на закрытии окон alert, не давая списывать
-        for(let i=0; i<3; i++) {
-            alert(`КРИТИЧЕСКОЕ НАРУШЕНИЕ!\nПричина: ${reason}\nТест аннулирован.`);
-        }
-
-        // Показываем красный экран смерти
-        document.getElementById('quiz-screen').classList.add('hidden');
-        document.getElementById('start-screen').classList.add('hidden');
-        document.getElementById('lock-screen').classList.remove('hidden');
-
-        // Попытка принудительно запереть пользователя в Fullscreen, даже если он вышел
-        let doc = document.documentElement;
-        let requestMethod = doc.requestFullscreen || doc.mozRequestFullScreen || doc.webkitRequestFullscreen || doc.msRequestFullscreen;
-        if (requestMethod) requestMethod.call(doc).catch(()=>{});
-    }
+  }, 500); // Hide after 0.5 second
+})();
 </script>
 </body>
 </html>
